@@ -15,7 +15,7 @@
       "workingDirectory": "."
     },
 
-    "_15-324": {
+    "NapelemEditor": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
