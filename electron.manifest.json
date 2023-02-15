@@ -16,6 +16,9 @@
     "directories": {
       "output": "../../../bin/Desktop"
     },
+    "win" : {
+      "icon" : "../../../wwwroot/solar-house.png"
+    },
     "extraResources": [
       {
         "from": "./bin",

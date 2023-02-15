@@ -2,8 +2,6 @@
 @inject ElectronNET.API.WindowManager WindowManager
 @inject Blazored.LocalStorage.ILocalStorageService localStorageService
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorageService
-@inject NavigationManager uriHelper;
-@inject ISnackbar Snackbar;
 @using NapelemEditor.Components
 
 <PageTitle>Napelem BS</PageTitle>
@@ -16,7 +14,7 @@
     </div>
     <main>
         <div class="content px-4 auth">
-            <MudPaper Width="100%" Class="d-flex align-content-end" Elevation="1">
+            <MudPaper Width="100%" Class="d-flex align-content-end" Elevation="1" Style="background-color: #e9e9e9">
                 <LoginDisplay isAuthenticated="isAuthenticated" role="role"/>
             </MudPaper>
 
@@ -58,34 +56,23 @@
     private int role { get; set; }
     private bool isDarkTheme;
 
-    private async void OnNavigation(object? obj, LocationChangedEventArgs args)
-    {
-        var areValuesStored = await localStorageService.ContainKeyAsync("isAuthenticated");
-        if (!areValuesStored)
-        {
-            areValuesStored = await sessionStorageService.ContainKeyAsync("isAuthenticated");
-        }
-        if (areValuesStored || uriHelper.Uri.EndsWith("/") || uriHelper.Uri.EndsWith("viewTestResult")) return;
-        Snackbar.Add("Please login", Severity.Error);
-
-        uriHelper.NavigateTo("/");
-    }
+    // private async void OnNavigation(object? obj, LocationChangedEventArgs args)
+    // {
+    //     var areValuesStored = await localStorageService.ContainKeyAsync("isAuthenticated");
+    //     if (!areValuesStored)
+    //     {
+    //         areValuesStored = await sessionStorageService.ContainKeyAsync("isAuthenticated");
+    //     }
+    //     if (areValuesStored || uriHelper.Uri.EndsWith("/") || uriHelper.Uri.EndsWith("viewTestResult")) return;
+    //     Snackbar.Add("Please login", Severity.Error);
+    //
+    //     uriHelper.NavigateTo("/");
+    // }
 
     protected override async Task OnInitializedAsync()
     {
-        uriHelper.LocationChanged += OnNavigation;
         try
         {
-            var areValuesStored = await localStorageService.ContainKeyAsync("isAuthenticated");
-            if (!areValuesStored)
-            {
-                areValuesStored = await sessionStorageService.ContainKeyAsync("isAuthenticated");
-            }
-            if (!areValuesStored && uriHelper.Uri != "/")
-            {
-                Snackbar.Add("Please Login");
-                uriHelper.NavigateTo("/");
-            }
             if (await localStorageService.ContainKeyAsync("isAuthenticated"))
             {
                 isAuthenticated = await localStorageService.GetItemAsync<bool>("isAuthenticated");
@@ -99,6 +86,7 @@
         }
         catch
         {
+            // ignored
         }
     }
 }

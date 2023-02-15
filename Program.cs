@@ -60,9 +60,12 @@ async void CreateElectronWindow()
     var window = await Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions
         {
             Width = 1024,
-            Height = 768
+            Height = 768,
         }
 
     );
-    // await window.WebContents.Session.ClearCacheAsync();
+    await window.WebContents.Session.ClearCacheAsync();
+    
+    //Alapértelmezett windows menü sort vágja le. 
+    window.RemoveMenu();
 }
