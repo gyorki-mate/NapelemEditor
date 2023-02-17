@@ -1,4 +1,4 @@
-﻿using NapelemEditor.Data;
+﻿using NapelemEditor.Models;
 
 namespace NapelemEditor.Interfaces;
 

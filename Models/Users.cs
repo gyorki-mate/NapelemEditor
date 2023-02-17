@@ -1,7 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace NapelemEditor.Data;
+namespace NapelemEditor.Models;
 
 public class Users
 {

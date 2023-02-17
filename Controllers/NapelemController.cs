@@ -1,4 +1,4 @@
-﻿using NapelemEditor.Data;
+﻿using NapelemEditor.Models;
 using NapelemEditor.Interfaces;
 using MongoDB.Driver;
 
@@ -6,22 +6,13 @@ namespace NapelemEditor.Controllers;
 
 public class NapelemController : INapelem
 {
-    private MongoClient _mongoClient = null;
-    private IMongoDatabase _mongoDatabase = null;
-    private IMongoCollection<Napelem> _mongoCollection = null;
-
-    public NapelemController()
-    {
-        _mongoClient = new MongoClient("mongodb+srv://admin:admin@cluster0.sbu7tp5.mongodb.net/test");
-        _mongoDatabase = _mongoClient.GetDatabase("Napelem");
-        _mongoCollection = _mongoDatabase.GetCollection<Napelem>("Napelem");
-    }
-
+    DbContext context = new DbContext();
+    
     public async void AddNapelem(Napelem napelem)
     {
         try
         {
-            await _mongoCollection.InsertOneAsync(napelem);
+            await context.NapelemRecord.InsertOneAsync(napelem);
         }
         catch (Exception e)
         {
@@ -34,7 +25,7 @@ public class NapelemController : INapelem
     {
         try
         {
-            var napelems = _mongoCollection.Find(FilterDefinition<Napelem>.Empty).ToListAsync();
+            var napelems = context.NapelemRecord.Find(FilterDefinition<Napelem>.Empty).ToListAsync();
             return await napelems;
         }
         catch (Exception e)
@@ -46,7 +37,7 @@ public class NapelemController : INapelem
 
     public async void UpdateNapelem(Napelem napelem)
     {
-        await _mongoCollection.ReplaceOneAsync(x => x.id == napelem.id, napelem);
+        await context.NapelemRecord.ReplaceOneAsync(x => x.id == napelem.id, napelem);
     }
 
     public void DeleteNapelem(string napelemID)

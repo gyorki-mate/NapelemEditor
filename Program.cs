@@ -2,7 +2,7 @@ using NapelemEditor;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using ElectronNET.API;
-using NapelemEditor.Data;
+using NapelemEditor.Models;
 using NapelemEditor.Interfaces;
 using Blazored.LocalStorage;
 using Blazored.SessionStorage;
