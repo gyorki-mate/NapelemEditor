@@ -1,5 +1,4 @@
 ﻿@inherits LayoutComponentBase
-@inject ElectronNET.API.WindowManager WindowManager
 @inject Blazored.LocalStorage.ILocalStorageService localStorageService
 @inject Blazored.SessionStorage.ISessionStorageService sessionStorageService
 @using NapelemEditor.Components
@@ -26,48 +25,9 @@
 
 @code
 {
-
-    void close()
-    {
-        if (WindowManager.BrowserWindows.Count > 0)
-        {
-            WindowManager.BrowserWindows.First().Close();
-        }
-    }
-
-    void maximize()
-    {
-        if (WindowManager.BrowserWindows.Count > 0)
-        {
-            WindowManager.BrowserWindows.First().Maximize();
-        }
-    }
-
-
-    void minimize()
-    {
-        if (WindowManager.BrowserWindows.Count > 0)
-        {
-            WindowManager.BrowserWindows.First().Minimize();
-        }
-    }
-
+    
     private bool isAuthenticated { get; set; }
     private int role { get; set; }
-    private bool isDarkTheme;
-
-    // private async void OnNavigation(object? obj, LocationChangedEventArgs args)
-    // {
-    //     var areValuesStored = await localStorageService.ContainKeyAsync("isAuthenticated");
-    //     if (!areValuesStored)
-    //     {
-    //         areValuesStored = await sessionStorageService.ContainKeyAsync("isAuthenticated");
-    //     }
-    //     if (areValuesStored || uriHelper.Uri.EndsWith("/") || uriHelper.Uri.EndsWith("viewTestResult")) return;
-    //     Snackbar.Add("Please login", Severity.Error);
-    //
-    //     uriHelper.NavigateTo("/");
-    // }
 
     protected override async Task OnInitializedAsync()
     {

@@ -98,10 +98,8 @@
         }
         try
         {
-            Console.WriteLine("before getting users");
+          
             var checkUser = userController.GetUser(_username);
-            Console.WriteLine("after getting users");
-            Console.WriteLine("res "+ checkUser);
             if(checkUser is not null )
             {
                 Snackbar.Add("Username already exists", Severity.Error);
@@ -113,7 +111,6 @@
             Console.WriteLine(e.Message);
             return;
         }
-        Console.WriteLine("create salt");
         var salt = CreateSalt();
         _password = GenerateSHA256Hash(_password, salt);
         var user = new Users
@@ -123,9 +120,7 @@
             Salt = salt,
             role = "User"
         };
-        Console.WriteLine("adding user");
         userController.AddUser(user);
-        Console.WriteLine("user added");
         MudDialog.Close(DialogResult.Ok(0));
     }
 }

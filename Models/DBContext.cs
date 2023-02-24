@@ -18,9 +18,7 @@ public class DbContext
         var client = new MongoClient(connstr);
         _mongoDB = client.GetDatabase("Napelem");
     }
-   
     
-  
     //get collections
     public IMongoCollection<Napelem> NapelemRecord => _mongoDB.GetCollection<Napelem>("Napelem");
     public IMongoCollection<Users> UserRecord => _mongoDB.GetCollection<Users>("User");

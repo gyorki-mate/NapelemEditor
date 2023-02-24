@@ -39,7 +39,6 @@ public class UserController : IUser
             throw;
         }
 
-        return null;
     }
     
     //get user by username
