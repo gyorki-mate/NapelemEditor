@@ -37,11 +37,27 @@ public class NapelemController : INapelem
 
     public async void UpdateNapelem(Napelem napelem)
     {
-        await context.NapelemRecord.ReplaceOneAsync(x => x.id == napelem.id, napelem);
+        try
+        {
+            await context.NapelemRecord.ReplaceOneAsync(x => x.id == napelem.id, napelem);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     public void DeleteNapelem(string napelemID)
     {
-        throw new NotImplementedException();
+        try
+        {
+            context.NapelemRecord.DeleteOne(x => x.id == napelemID);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 }

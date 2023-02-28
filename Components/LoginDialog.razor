@@ -44,15 +44,11 @@
             Snackbar.Add("Empty username or password");
             return;
         }
-
         Users user;
         try
         {
-            //TODO
-            //get user from DB
             user = userController.GetUser(UserName);
         }
-        
         catch
         {
             Snackbar.Add("Invalid username or password");

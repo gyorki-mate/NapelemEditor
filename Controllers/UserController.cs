@@ -6,13 +6,8 @@ namespace NapelemEditor.Controllers;
 
 public class UserController : IUser
 {
-    DbContext context = new DbContext();
-
-    public UserController()
-    {
-      
-    }
-
+    DbContext context = new();
+    
     public async void AddUser(Users user)
     {
         try
@@ -38,7 +33,6 @@ public class UserController : IUser
             Console.WriteLine(e);
             throw;
         }
-
     }
     
     //get user by username
@@ -58,11 +52,27 @@ public class UserController : IUser
 
     public async void UpdateUser(Users user)
     {
-        await context.UserRecord.ReplaceOneAsync(x => x.id == user.id, user);
+        try
+        {
+            await context.UserRecord.ReplaceOneAsync(x => x.id == user.id, user);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     public void DeleteUser(string userID)
     {
-        throw new NotImplementedException();
+        try
+        {
+            context.UserRecord.DeleteOneAsync(x => x.id == userID);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 }
