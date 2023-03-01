@@ -6,6 +6,7 @@
     <RootNamespace>NapelemEditor</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Blazor.Extensions.Canvas" Version="1.1.1" />
     <PackageReference Include="Blazored.LocalStorage" Version="4.3.0" />
     <PackageReference Include="Blazored.SessionStorage" Version="2.3.0" />
     <PackageReference Include="ElectronNET.API" Version="13.5.1" />

@@ -26,11 +26,15 @@ builder.Services.AddScoped<IUser, UserController>();
 builder.Services.AddBlazoredLocalStorage();
 builder.Services.AddBlazoredSessionStorage();
 
-
 builder.Services.AddElectron();
 builder.WebHost.UseElectron(args);
 builder.Services.AddMudServices();
 StaticWebAssetsLoader.UseStaticWebAssets(builder.Environment, builder.Configuration);
+
+builder.Services
+    .AddSingleton<MouseService>()
+    .AddSingleton<IMouseService>(ff => ff.GetRequiredService<MouseService>());
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -62,10 +66,9 @@ async void CreateElectronWindow()
             Width = 1024,
             Height = 768,
         }
-
     );
     await window.WebContents.Session.ClearCacheAsync();
-    
+
     //Alapértelmezett windows menü sort vágja le. 
     window.RemoveMenu();
 }
