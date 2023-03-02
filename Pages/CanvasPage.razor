@@ -1,5 +1,4 @@
-﻿@using NapelemEditor.Interfaces;
-@inject MouseService mouseSrv;
+﻿@inject MouseService mouseSrv;
 @page "/canvas"
 
 
@@ -16,9 +15,10 @@
 </div>
 <div class="row mt-2">
     <div class="col">
-        <svg class="bg-light" width="100%" height="500" xmlns="http://www.w3.org/2000/svg"
+        <svg class="bg-light" width="@canvasWidth" height="@canvasHeigth" xmlns="http://www.w3.org/2000/svg"
              @onmousemove=@(e => mouseSrv.FireMove(this, e))
-             @onmouseup=@(e => mouseSrv.FireUp(this, e))>
+             @onmouseup=@(e => mouseSrv.FireUp(this, e))
+             >
 
             <style>
                 text {
@@ -58,9 +58,7 @@
                         </Draggable>
                     </Draggable>
                 </Draggable>
-
             </Draggable>
-
         </svg>
     </div>
 </div>
@@ -68,4 +66,6 @@
 @code {
     double X = 290;
     double Y = 250;
+    private string canvasWidth { get; set; } = "1200";
+    public string canvasHeigth { get; set; } = "500";
 }

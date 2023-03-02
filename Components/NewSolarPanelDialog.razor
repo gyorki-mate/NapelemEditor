@@ -32,7 +32,7 @@
     </DialogContent>
     <DialogActions>
         <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="AddSolarPanel">Add</MudButton>
-        <MudButton OnClick="@(() => MudDialog.Cancel())">Close</MudButton>
+        <MudButton OnClick="@(() => MudDialog.Close())">Close</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -51,14 +51,14 @@
     {
         Napelem napelem = new Napelem
         {
-            type = Type,
-            shape = Shape,
-            width = Width,
-            height = Height,
-            output = Output,
-            price = Price
+            Type = Type,
+            Shape = Shape,
+            Width = Width,
+            Height = Height,
+            Output = Output,
+            Price = Price
         };
         // Put 'napelem' in database
-        MudDialog.Cancel();
+        MudDialog.Close();
     }
 }
