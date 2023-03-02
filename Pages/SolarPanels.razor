@@ -60,10 +60,13 @@
         _napelems = await napelemController.GetAllNapelem();
     }
 
-    private void OpenNewSolarPanelDialog()
+    private async void OpenNewSolarPanelDialog()
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
-        DialogService.Show<NewSolarPanelDialog>("Simple Dialog", options);
+        var res = DialogService.Show<NewSolarPanelDialog>("Simple Dialog", options);
+        await res.Result;
+        _napelems = await napelemController.GetAllNapelem();
+        StateHasChanged();
     }
 
 

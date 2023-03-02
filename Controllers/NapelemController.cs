@@ -7,17 +7,18 @@ namespace NapelemEditor.Controllers;
 public class NapelemController : INapelem
 {
     DbContext context = new DbContext();
-    
-    public async void AddNapelem(Napelem napelem)
+    //TODO lehet máshogy kéne megoldani a hibakezelést, ez volt a legegyszerűbb :/
+    public async Task<bool> AddNapelem(Napelem napelem)
     {
         try
         {
             await context.NapelemRecord.InsertOneAsync(napelem);
+            return true;
         }
-        catch (Exception e)
+        catch (Exception)
         {
-            Console.WriteLine(e);
-            throw;
+            return false;
+            
         }
     }
 

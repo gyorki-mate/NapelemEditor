@@ -1,4 +1,7 @@
 ﻿@using NapelemEditor.Models
+@using System.Globalization
+@inject INapelem NapelemController;
+@inject ISnackbar Snackbar;
 
 <MudDialog>
     <DialogContent>
@@ -17,16 +20,16 @@
                 </MudSelect>
             </MudItem>
             <MudItem xs="6">
-                <MudNumericField @bind-Value="Width" Label="Width" Variant="Variant.Text" Min="0" Max="500"/>
+                <MudNumericField @bind-Value="Width" Adornment="Adornment.End" AdornmentText="cm" Label="Width" Variant="Variant.Text" Min="0" Max="500"/>
             </MudItem>
             <MudItem xs="6">
-                <MudNumericField @bind-Value="Height" Label="Height" Variant="Variant.Text" Min="0" Max="500"/>
+                <MudNumericField @bind-Value="Height" Adornment="Adornment.End" AdornmentText="cm" Label="Height" Variant="Variant.Text" Min="0" Max="500"/>
             </MudItem>
             <MudItem xs="6">
-                <MudNumericField @bind-Value="Output" Label="Output" Variant="Variant.Text" Min="0" Max="1000"/>
+                <MudNumericField @bind-Value="Output"  Adornment="Adornment.End" AdornmentText="W"  Label="Output" Variant="Variant.Text" Min="0" Max="1000"/>
             </MudItem>
             <MudItem xs="6">
-                <MudNumericField @bind-Value="Price" Label="Price" Variant="Variant.Text" Min="0"/>
+                <MudNumericField  @bind-Value="Price" Format="N0" Culture="CultureInfo.CurrentCulture" Adornment="Adornment.Start" AdornmentColor="Color.Success" AdornmentIcon="@Icons.Material.Filled.AttachMoney" Label="Price" Variant="Variant.Text" Min="0"/>
             </MudItem>
         </MudGrid>
     </DialogContent>
@@ -35,6 +38,7 @@
         <MudButton OnClick="@(() => MudDialog.Close())">Close</MudButton>
     </DialogActions>
 </MudDialog>
+
 
 @code {
     [CascadingParameter] 
@@ -47,7 +51,7 @@
     private int Output { get; set; }
     private int Price { get; set; }
 
-    private void AddSolarPanel()
+    private async void AddSolarPanel()
     {
         Napelem napelem = new Napelem
         {
@@ -58,7 +62,11 @@
             Output = Output,
             Price = Price
         };
-        // Put 'napelem' in database
+        var res = await NapelemController.AddNapelem(napelem);
+        if(res)
+            Snackbar.Add("Panel added!", Severity.Success);
+        else
+            Snackbar.Add("ONO!", Severity.Error);
         MudDialog.Close();
     }
 }
