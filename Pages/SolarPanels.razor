@@ -1,0 +1,47 @@
+﻿@page "/solarpanels"
+@using NapelemEditor.Models
+@using NapelemEditor.Interfaces
+@using Microsoft.EntityFrameworkCore.Metadata.Conventions
+@using NapelemEditor.Components
+@inject INapelem napelemController
+@inject IDialogService DialogService
+
+<PageTitle>Solar Panels</PageTitle>
+
+<h1>Solar Panels</h1>
+        
+<MudSimpleTable Style="overflow-x: auto;">                     
+    <thead>                                                    
+        <tr>                                                   
+            @foreach (var h in _headings)                       
+            {                                                  
+                <th>@h</th>                                    
+            }                                                  
+        </tr>                                                  
+    </thead>                                                   
+    <tbody>                                                    
+        <!-- GetAllNapelem just crashes the entire thing
+        @foreach (var napelem in napelemController.GetAllNapelem().Result)                             
+        {                                                      
+            <tr>
+                <td>@napelem.id</td>
+                <td>@napelem.width</td> 
+                <td>@napelem.height</td> 
+                <td>@napelem.output</td> 
+            </tr>
+        }
+        -->                                                      
+    </tbody>                                                   
+</MudSimpleTable> 
+
+<button class="btn btn-primary" @onclick="OpenNewSolarPanelDialog">Add New Solar Panel</button>
+
+@code {
+    private readonly string[] _headings = { "ID", "Type", "Shape", "Width", "Height", "Output", "Price" };
+
+    private void OpenNewSolarPanelDialog()
+    {
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        DialogService.Show<NewSolarPanelDialog>("Simple Dialog", options);
+    }
+}

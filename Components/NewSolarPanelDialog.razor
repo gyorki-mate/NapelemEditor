@@ -1,0 +1,64 @@
+﻿@using NapelemEditor.Models
+
+<MudDialog>
+    <DialogContent>
+        <MudGrid Justify="Justify.SpaceBetween">
+            <MudItem xs="8">
+                <MudSelect @bind-Value="Type" T="string" Label="Panel Type" AnchorOrigin="Origin.BottomCenter">
+                    <MudSelectItem Value="@("Monocrystalline")"/>
+                    <MudSelectItem Value="@("Polycrystalline")"/>
+                    <MudSelectItem Value="@("Thin-Film")"/>
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="4">
+                <MudSelect @bind-Value="Shape" T="string" Label="Panel Type" AnchorOrigin="Origin.BottomCenter">
+                    <MudSelectItem Value="@("Rectangular")"/>
+                    <MudSelectItem Value="@("Circular")"/>
+                </MudSelect>
+            </MudItem>
+            <MudItem xs="6">
+                <MudNumericField @bind-Value="Width" Label="Width" Variant="Variant.Text" Min="0" Max="500"/>
+            </MudItem>
+            <MudItem xs="6">
+                <MudNumericField @bind-Value="Height" Label="Height" Variant="Variant.Text" Min="0" Max="500"/>
+            </MudItem>
+            <MudItem xs="6">
+                <MudNumericField @bind-Value="Output" Label="Output" Variant="Variant.Text" Min="0" Max="1000"/>
+            </MudItem>
+            <MudItem xs="6">
+                <MudNumericField @bind-Value="Price" Label="Price" Variant="Variant.Text" Min="0"/>
+            </MudItem>
+        </MudGrid>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="AddSolarPanel">Add</MudButton>
+        <MudButton OnClick="@(() => MudDialog.Cancel())">Close</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] 
+    MudDialogInstance MudDialog { get; set; }
+
+    private string Type { get; set; } = "Monocrystalline";
+    private string Shape { get; set; } = "Rectangular";
+    private int Width { get; set; }
+    private int Height { get; set; }
+    private int Output { get; set; }
+    private int Price { get; set; }
+
+    private void AddSolarPanel()
+    {
+        Napelem napelem = new Napelem
+        {
+            type = Type,
+            shape = Shape,
+            width = Width,
+            height = Height,
+            output = Output,
+            price = Price
+        };
+        // Put 'napelem' in database
+        MudDialog.Cancel();
+    }
+}
