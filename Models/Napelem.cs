@@ -6,7 +6,7 @@ namespace NapelemEditor.Models;
 public class Napelem
 {
     [BsonRepresentation(BsonType.ObjectId)]
-    public string id { get; } =ObjectId.GenerateNewId().ToString();
+    public string id { get; set; }
     public string Name { get; set; }
     public string Type { get; set; }
     public string Shape { get; set; }

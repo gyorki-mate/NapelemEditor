@@ -9,11 +9,12 @@
 @code {
     [Parameter] public RenderFragment? ChildContent { get; set; }
 
+    
 
     double? x;
     [Parameter]
     public double X { 
-        get { return x ?? 0; }
+        get => x ?? 0;
         set { if (!x.HasValue || (!isDown & XChanged.HasDelegate)) { x = value; } } 
     }
     [Parameter] public EventCallback<double> XChanged { get; set; }
@@ -21,7 +22,7 @@
     double? y;
     [Parameter]
     public double Y {
-        get { return y ?? 0; }
+        get => y ?? 0;
         set { if (!y.HasValue || (!isDown & YChanged.HasDelegate)) { y = value; } }
     }
     [Parameter] public EventCallback<double> YChanged { get; set; }
@@ -38,7 +39,7 @@
     string cursor = "grab";
     bool _isDown;
     bool isDown {
-        get { return _isDown; }
+        get => _isDown;
         set {
             _isDown = value;
             cursor = _isDown ? "grabbing" : "grab";

@@ -1,5 +1,6 @@
 ﻿@inject MouseService mouseSrv;
 @page "/canvas"
+@using System.Runtime.Intrinsics.Arm
 
 
 <div class="row g-3 align-items-center">
@@ -13,59 +14,56 @@
         <input type="number" @bind=Y class="form-control" />
     </div>
 </div>
-<div class="row mt-2">
-    <div class="col">
-        <svg class="bg-light" width="@canvasWidth" height="@canvasHeigth" xmlns="http://www.w3.org/2000/svg"
-             @onmousemove=@(e => mouseSrv.FireMove(this, e))
-             @onmouseup=@(e => mouseSrv.FireUp(this, e))
-             >
+ <div class="row mt-2">
+     <div class="col">
 
-            <style>
-                text {
-                    -webkit-user-select: none;
-                    -moz-user-select: none;
-                    -ms-user-select: none;
-                    user-select: none;
-                    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-                    fill: #333333;
-                }
-
-                .sun-title {
-                    fill: #fff;
-                    pointer-events: none !important;
-                }
-
-                .sun {
-                    fill: #ff6600;
-                    stroke: #fff;
-                    stroke-width: 1;
-                }
-            </style>
-
-            <Draggable @bind-X=X @bind-Y=Y>
-                <Sun />
-
-                <Draggable X=173 Y=-15>
-                    <circle r="35" fill="#1aaee5" stroke="#fff" />
-                    <Draggable X=-57 Y=-38>
-                        <text>Earth</text>
-                    </Draggable>
-
-                    <Draggable X=51 Y=-25>
-                        <circle r="15" fill="#04dcd2" stroke="#fff" />
-                        <Draggable X=-5 Y=-20>
-                            <text>Moon</text>
-                        </Draggable>
-                    </Draggable>
-                </Draggable>
-            </Draggable>
-        </svg>
+<svg class="bg-light" width="@canvasWidth" height="@canvasHeigth" xmlns="http://www.w3.org/2000/svg"
+     @onmousemove=@(e => mouseSrv.FireMove(this, e))
+             @onmouseup=@(e => mouseSrv.FireUp(this, e))>
+    
+    <Draggable X="X" Y="Y" >
+        <Sun></Sun>
+    </Draggable>
+    @* @foreach (var draggabble in Draggables) *@
+    @* { *@
+    @*     @RenderFragment(draggabble) *@
+    @* } *@
+</svg>
     </div>
 </div>
 
 @code {
+    [Parameter]
+    public RenderFragment<Draggable> RenderFragment { get; set; }
+    
     double X = 290;
     double Y = 250;
     private string canvasWidth { get; set; } = "1200";
     public string canvasHeigth { get; set; } = "500";
+    List<Draggable> Draggables = new();
+
+    protected override void OnInitialized()
+    {
+        var asd = new Draggable() { X = X, Y = Y };
+        Draggables.Add(asd);
+        foreach (var x in Draggables)
+        {
+            Console.WriteLine(x);
+        }
+         base.OnInitialized();
+    }
+    
+
+  
+
+    // public void AddButton()
+    // {
+    //     ChildContent.
+    // }
+    //
+    // private RenderFragment CreateComponent() => BuildRenderTree =>
+    // {
+    //     ChildContent = ChildContent.
+    // }
+    
 }

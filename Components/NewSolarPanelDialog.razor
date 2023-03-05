@@ -71,6 +71,7 @@
             Output = Output,
             Price = Price
         };
+
         var res = await NapelemController.AddNapelem(napelem);
         if(res)
             Snackbar.Add("Panel added!", Severity.Success);

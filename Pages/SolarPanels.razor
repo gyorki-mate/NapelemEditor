@@ -13,7 +13,7 @@
     <ToolBarContent>
         <MudButton OnClick="OpenNewSolarPanelDialog" Variant="Variant.Filled" Color="Color.Info">Add new Panel</MudButton>
     </ToolBarContent>
-    
+
     <HeaderContent>
         <MudTh class="header">
             <MudTableSortLabel SortBy="new Func<Napelem, object>(x => x.Name)">Name</MudTableSortLabel>
@@ -46,6 +46,9 @@
         <MudTd DataLabel="Height">@context.Height</MudTd>
         <MudTd DataLabel="Output">@context.Output</MudTd>
         <MudTd DataLabel="Price">@context.Price</MudTd>
+        <MudTd>
+            <MudIconButton Icon="@Icons.Material.Filled.Delete" OnClick="() => deletePanel(context.id)"></MudIconButton>
+        </MudTd>
     </RowTemplate>
 
     <PagerContent>
@@ -55,7 +58,7 @@
 
 
 @code {
- 
+
     List<Napelem> _napelems = new();
     private string _searchString;
 
@@ -73,6 +76,11 @@
         StateHasChanged();
     }
 
-
+    private async void deletePanel(string ID)
+    {
+         napelemController.DeleteNapelem(ID);
+        _napelems = await napelemController.GetAllNapelem();
+        StateHasChanged();
+    }
 
 }
