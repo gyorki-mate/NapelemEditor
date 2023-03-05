@@ -5,36 +5,41 @@
 
 <MudDialog>
     <DialogContent>
-        <MudGrid Justify="Justify.SpaceBetween">
-            <MudItem xs="8">
-                <MudSelect @bind-Value="Type" T="string" Label="Panel Type" AnchorOrigin="Origin.BottomCenter">
-                    <MudSelectItem Value="@("Monocrystalline")"/>
-                    <MudSelectItem Value="@("Polycrystalline")"/>
-                    <MudSelectItem Value="@("Thin-Film")"/>
-                </MudSelect>
-            </MudItem>
-            <MudItem xs="4">
-                <MudSelect @bind-Value="Shape" T="string" Label="Panel Type" AnchorOrigin="Origin.BottomCenter">
-                    <MudSelectItem Value="@("Rectangular")"/>
-                    <MudSelectItem Value="@("Circular")"/>
-                </MudSelect>
-            </MudItem>
-            <MudItem xs="6">
-                <MudNumericField @bind-Value="Width" Adornment="Adornment.End" AdornmentText="cm" Label="Width" Variant="Variant.Text" Min="0" Max="500"/>
-            </MudItem>
-            <MudItem xs="6">
-                <MudNumericField @bind-Value="Height" Adornment="Adornment.End" AdornmentText="cm" Label="Height" Variant="Variant.Text" Min="0" Max="500"/>
-            </MudItem>
-            <MudItem xs="6">
-                <MudNumericField @bind-Value="Output"  Adornment="Adornment.End" AdornmentText="W"  Label="Output" Variant="Variant.Text" Min="0" Max="1000"/>
-            </MudItem>
-            <MudItem xs="6">
-                <MudNumericField  @bind-Value="Price" Format="N0" Culture="CultureInfo.CurrentCulture" Adornment="Adornment.Start" AdornmentColor="Color.Success" AdornmentIcon="@Icons.Material.Filled.AttachMoney" Label="Price" Variant="Variant.Text" Min="0"/>
-            </MudItem>
-        </MudGrid>
+        <MudForm @bind-IsValid="_success">    
+            <MudGrid Justify="Justify.SpaceBetween">
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="Name" T="string" Label="Name" Variant="Variant.Outlined" MaxLength="50" Required="true"/>
+                </MudItem>
+                <MudItem xs="8">
+                    <MudSelect @bind-Value="Type" T="string" Label="Panel Type" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                        <MudSelectItem Value="@("Monocrystalline")"/>
+                        <MudSelectItem Value="@("Polycrystalline")"/>
+                        <MudSelectItem Value="@("Thin-Film")"/>
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="4">
+                    <MudSelect @bind-Value="Shape" T="string" Label="Panel Type" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                        <MudSelectItem Value="@("Rectangular")"/>
+                        <MudSelectItem Value="@("Circular")"/>
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="6">
+                    <MudNumericField @bind-Value="Width" Adornment="Adornment.End" AdornmentText="cm" Label="Width" Variant="Variant.Outlined" Min="1" MaxLength="3"/>
+                </MudItem>
+                <MudItem xs="6">
+                    <MudNumericField @bind-Value="Height" Adornment="Adornment.End" AdornmentText="cm" Label="Height" Variant="Variant.Outlined" Min="1" MaxLength="3"/>
+                </MudItem>
+                <MudItem xs="6">
+                    <MudNumericField @bind-Value="Output" Adornment="Adornment.End" AdornmentText="W" Label="Output" Variant="Variant.Outlined" Min="0" MaxLength="4"/>
+                </MudItem>
+                <MudItem xs="6">
+                    <MudNumericField @bind-Value="Price" Format="N0" Culture="CultureInfo.CurrentCulture" Adornment="Adornment.Start" AdornmentColor="Color.Success" AdornmentIcon="@Icons.Material.Filled.AttachMoney" Label="Price" Variant="Variant.Outlined" Min="0" MaxLength="7"/>
+                </MudItem>
+            </MudGrid>
+        </MudForm>    
     </DialogContent>
     <DialogActions>
-        <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="AddSolarPanel">Add</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="AddSolarPanel" Disabled="@(!_success)">Add</MudButton>
         <MudButton OnClick="@(() => MudDialog.Close())">Close</MudButton>
     </DialogActions>
 </MudDialog>
@@ -43,18 +48,22 @@
 @code {
     [CascadingParameter] 
     MudDialogInstance MudDialog { get; set; }
+    
+    private bool _success;
 
+    private string Name { get; set; }
     private string Type { get; set; } = "Monocrystalline";
     private string Shape { get; set; } = "Rectangular";
-    private int Width { get; set; }
-    private int Height { get; set; }
-    private int Output { get; set; }
-    private int Price { get; set; }
+    private int Width { get; set; } = 100;
+    private int Height { get; set; } = 100;
+    private int Output { get; set; } = 200;
+    private int Price { get; set; } = 500;
 
     private async void AddSolarPanel()
     {
         Napelem napelem = new Napelem
         {
+            Name = Name,
             Type = Type,
             Shape = Shape,
             Width = Width,

@@ -11,10 +11,13 @@
 <h1>Solar Panels</h1>
 <MudTable T="Napelem" Items="_napelems">
     <ToolBarContent>
-        <MudButton OnClick="OpenNewSolarPanelDialog" Variant="Variant.Outlined">Add new Panel</MudButton>
+        <MudButton OnClick="OpenNewSolarPanelDialog" Variant="Variant.Filled" Color="Color.Info">Add new Panel</MudButton>
     </ToolBarContent>
     
     <HeaderContent>
+        <MudTh class="header">
+            <MudTableSortLabel SortBy="new Func<Napelem, object>(x => x.Name)">Name</MudTableSortLabel>
+        </MudTh>
         <MudTh class="header">
             <MudTableSortLabel SortBy="new Func<Napelem, object>(x => x.Type)">Type</MudTableSortLabel>
         </MudTh>
@@ -36,6 +39,7 @@
     </HeaderContent>
 
     <RowTemplate >
+        <MudTd DataLabel="Name">@context.Name</MudTd>
         <MudTd DataLabel="Type">@context.Type</MudTd>
         <MudTd DataLabel="Shape">@context.Shape</MudTd>
         <MudTd DataLabel="Width">@context.Width</MudTd>
@@ -63,7 +67,7 @@
     private async void OpenNewSolarPanelDialog()
     {
         var options = new DialogOptions { CloseOnEscapeKey = true };
-        var res = DialogService.Show<NewSolarPanelDialog>("Simple Dialog", options);
+        var res = DialogService.Show<NewSolarPanelDialog>("New Solar Panel", options);
         await res.Result;
         _napelems = await napelemController.GetAllNapelem();
         StateHasChanged();

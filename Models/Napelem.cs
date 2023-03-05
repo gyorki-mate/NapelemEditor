@@ -7,6 +7,7 @@ public class Napelem
 {
     [BsonRepresentation(BsonType.ObjectId)]
     public string id { get; } =ObjectId.GenerateNewId().ToString();
+    public string Name { get; set; }
     public string Type { get; set; }
     public string Shape { get; set; }
     public int Width { get; set; }
