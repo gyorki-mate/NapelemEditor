@@ -8,62 +8,60 @@
         <label class="col-form-label">Solar system position:</label>
     </div>
     <div class="col-auto">
-        <input type="number" class="form-control" @bind=X />
+        <input type="number" class="form-control" @bind=X/>
     </div>
     <div class="col-auto">
-        <input type="number" @bind=Y class="form-control" />
+        <input type="number" @bind=Y class="form-control"/>
     </div>
 </div>
- <div class="row mt-2">
-     <div class="col">
 
-<svg class="bg-light" width="@canvasWidth" height="@canvasHeigth" xmlns="http://www.w3.org/2000/svg"
-     @onmousemove=@(e => mouseSrv.FireMove(this, e))
+<MudButton OnClick="@Add">Add</MudButton>
+<div class="row mt-2">
+    <div class="col">
+        <svg class="bg-light" width="@canvasWidth" height="@canvasHeigth" xmlns="http://www.w3.org/2000/svg"
+             @onmousemove=@(e => mouseSrv.FireMove(this, e))
              @onmouseup=@(e => mouseSrv.FireUp(this, e))>
-    
-    <Draggable X="X" Y="Y" >
-        <Sun></Sun>
-    </Draggable>
-    @* @foreach (var draggabble in Draggables) *@
-    @* { *@
-    @*     @RenderFragment(draggabble) *@
-    @* } *@
-</svg>
+
+            @foreach (var draggabble in _components)
+            {
+                @draggabble
+            }
+        </svg>
     </div>
 </div>
 
 @code {
+
     [Parameter]
-    public RenderFragment<Draggable> RenderFragment { get; set; }
-    
-    double X = 290;
-    double Y = 250;
+    public RenderFragment RenderFragment { get; set; }
+
+    static double X = 290;
+    static double Y = 250;
+    static int width = 20;
+    static int height = 20;
     private string canvasWidth { get; set; } = "1200";
     public string canvasHeigth { get; set; } = "500";
-    List<Draggable> Draggables = new();
 
-    protected override void OnInitialized()
+    readonly List<RenderFragment> _components = new()
     {
-        var asd = new Draggable() { X = X, Y = Y };
-        Draggables.Add(asd);
-        foreach (var x in Draggables)
-        {
-            Console.WriteLine(x);
-        }
-         base.OnInitialized();
+        Obstacles
+    };
+
+    static RenderFragment Obstacles = __builder =>
+    {
+        <Draggable X="@X" Y="Y">
+            <Obstacle height="height" width="width"/>
+        </Draggable>
+    };
+
+    private void Add()
+    {
+    //TODO AddObstacle Dialog returns x,y,width,height
+        _components.Add(Obstacles);
+        StateHasChanged();
     }
-    
 
-  
 
-    // public void AddButton()
-    // {
-    //     ChildContent.
-    // }
-    //
-    // private RenderFragment CreateComponent() => BuildRenderTree =>
-    // {
-    //     ChildContent = ChildContent.
-    // }
-    
+
+
 }
