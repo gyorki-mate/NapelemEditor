@@ -78,9 +78,19 @@
 
     private async void deletePanel(string ID)
     {
-         napelemController.DeleteNapelem(ID);
-        _napelems = await napelemController.GetAllNapelem();
-        StateHasChanged();
+        try
+        {
+            DialogParameters parameters = new() { { "_content", "Are you sure you want to delete this panel?" } };
+            var result = DialogService.Show<ConfirmDialog>("Warning!", parameters);
+            var asd = await result.Result;
+            if (!asd.Data.Equals(true)) return;
+            napelemController.DeleteNapelem(ID);
+            _napelems = await napelemController.GetAllNapelem();
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+            // ignored
+        }
     }
-
 }

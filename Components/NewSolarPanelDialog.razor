@@ -1,5 +1,6 @@
 ﻿@using NapelemEditor.Models
 @using System.Globalization
+@inject IDialogService DialogService
 @inject INapelem NapelemController;
 @inject ISnackbar Snackbar;
 
@@ -61,22 +62,32 @@
 
     private async void AddSolarPanel()
     {
-        Napelem napelem = new Napelem
+        try
         {
-            Name = Name,
-            Type = Type,
-            Shape = Shape,
-            Width = Width,
-            Height = Height,
-            Output = Output,
-            Price = Price
-        };
-
-        var res = await NapelemController.AddNapelem(napelem);
-        if(res)
-            Snackbar.Add("Panel added!", Severity.Success);
-        else
-            Snackbar.Add("ONO!", Severity.Error);
-        MudDialog.Close();
+            DialogParameters parameters = new() { { "_content", "Are you sure you want to add this panel?" } };
+            var result = DialogService.Show<ConfirmDialog>("Warning!", parameters);
+            var asd = await result.Result;
+            if (!asd.Data.Equals(true)) return;
+            Napelem napelem = new Napelem
+            {
+                Name = Name,
+                Type = Type,
+                Shape = Shape,
+                Width = Width,
+                Height = Height,
+                Output = Output,
+                Price = Price
+            };
+            var res = await NapelemController.AddNapelem(napelem);
+            if (res)
+                Snackbar.Add("Panel added!", Severity.Success);
+            else
+                Snackbar.Add("ONO!", Severity.Error);
+            MudDialog.Close();
+        }
+        catch (Exception e)
+        {
+            // ignored
+        }
     }
 }
