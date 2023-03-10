@@ -1,7 +1,8 @@
 ﻿@inject MouseService mouseSrv;
 @page "/canvas"
-@using System.Runtime.Intrinsics.Arm
-
+@using Microsoft.AspNetCore.Components.Rendering
+@using System.Runtime.CompilerServices
+@using System.Reflection
 
 <div class="row g-3 align-items-center">
     <div class="col-auto">
@@ -20,11 +21,13 @@
     <div class="col">
         <svg class="bg-light" width="@canvasWidth" height="@canvasHeigth" xmlns="http://www.w3.org/2000/svg"
              @onmousemove=@(e => mouseSrv.FireMove(this, e))
-             @onmouseup=@(e => mouseSrv.FireUp(this, e))>
-
-            @foreach (var draggabble in _components)
+             @onmouseup=@(e => mouseSrv.FireUp(this, e))
+             @ondblclick=@(e => delete(this, e))>
+            @foreach (var item in Objects)
             {
-                @draggabble
+                <Draggable @bind-X="item.X" @bind-Y="item.Y">
+                    <Obstacle height="item.Height" width="item.Width"/>
+                </Draggable>
             }
         </svg>
     </div>
@@ -37,31 +40,52 @@
 
     static double X = 290;
     static double Y = 250;
-    static int width = 20;
-    static int height = 20;
+    static int width = 40;
+    static int height = 40;
+    static int c = 0;
     private string canvasWidth { get; set; } = "1200";
     public string canvasHeigth { get; set; } = "500";
+    List<Objects> Objects = new();
 
-    readonly List<RenderFragment> _components = new()
-    {
-        Obstacles
-    };
+        @*   static readonly List<RenderFragment> _components = new() *@
+        @*   { *@
+        @*       Obstacles *@
+        @*   }; *@
+        @* *@
+        @*   private static RenderFragment Obstacles = __builder => *@
+        @*   { *@
+        @* *@
+        @*       <Draggable X="@X" Y="Y"> *@
+        @*           <Obstacle width="width" height="height"/> *@
+        @*       </Draggable> *@
+        @* *@
+        @*            *@
+        @*            *@
+        @*        *@
+        @*   }; *@
+    //create a function when right clicked on the position of this renderfragment(X,y coordinates), delete it from the _components list
 
-    static RenderFragment Obstacles = __builder =>
-    {
-        <Draggable X="@X" Y="Y">
-            <Obstacle height="height" width="width"/>
-        </Draggable>
-    };
 
     private void Add()
     {
     //TODO AddObstacle Dialog returns x,y,width,height
-        _components.Add(Obstacles);
+        Objects.Add(new Objects(X, Y, width, height));
+        Console.WriteLine(Objects.Count);
         StateHasChanged();
     }
 
-
-
-
+    private void delete(object? obj, MouseEventArgs e)
+    {
+        foreach (var o in Objects.Where(o => o.X+o.Width/2 < e.OffsetX + o.Width/2 
+                                             && o.X+o.Width/2  > e.OffsetX - o.Width/2 
+                                             && o.Y+o.Height/2 < e.OffsetY + o.Height/2 
+                                             && o.Y+o.Height/2 > e.OffsetY - o.Height/2))
+        {
+            Objects.Remove(o);
+            StateHasChanged();
+    // Console.WriteLine(o.X + " X position within : " + (o.Width - e.OffsetX) + " and " +( o.Width + e.OffsetX));
+    // Console.WriteLine(o.Y + " Y position within : " + (o.Height - e.OffsetY) + " and " +(o.Height + e.OffsetY));
+            return;
+        }
+    }
 }

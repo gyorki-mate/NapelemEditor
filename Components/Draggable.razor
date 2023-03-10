@@ -8,9 +8,7 @@
 
 @code {
     [Parameter] public RenderFragment? ChildContent { get; set; }
-
     
-
     double? x;
     [Parameter]
     public double X { 
@@ -27,6 +25,11 @@
     }
     [Parameter] public EventCallback<double> YChanged { get; set; }
 
+    [Parameter]
+    public int height { get; set; }
+    
+    [Parameter]
+    public int width { get; set; }
 
     protected override void OnInitialized() {
         mouseSrv.OnMove += OnMove;
@@ -54,15 +57,18 @@
         cursorY = e.ClientY;
     }
 
-    void OnUpLeave(object? _, MouseEventArgs e) 
-        => isDown = false;
+    void OnUpLeave(object? _, MouseEventArgs e)
+    {
+        isDown = false;
+    } 
+
 
     void OnMove(object? _, MouseEventArgs e) {
         if (!isDown)
             return;
 
-        x = x - (cursorX - e.ClientX);
-        y = y - (cursorY - e.ClientY);
+        x -= cursorX - e.ClientX;
+        y -= cursorY - e.ClientY;
 
         cursorX = e.ClientX;
         cursorY = e.ClientY;
@@ -76,4 +82,5 @@
         mouseSrv.OnUp -= OnUpLeave;
         mouseSrv.OnLeave -= OnUpLeave;
     }
+    
 }
