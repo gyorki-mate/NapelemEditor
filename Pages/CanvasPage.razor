@@ -1,8 +1,10 @@
 ﻿@inject MouseService mouseSrv;
+@inject IDialogService DialogService;
 @page "/canvas"
 @using Microsoft.AspNetCore.Components.Rendering
 @using System.Runtime.CompilerServices
 @using System.Reflection
+@using MudBlazor.Extensions
 
 <div class="row g-3 align-items-center">
     <div class="col-auto">
@@ -40,8 +42,8 @@
 
     static double X = 290;
     static double Y = 250;
-    static int width = 40;
-    static int height = 40;
+    int width = 40;
+    int height = 40;
     static int c = 0;
     private string canvasWidth { get; set; } = "1200";
     public string canvasHeigth { get; set; } = "500";
@@ -66,8 +68,20 @@
     //create a function when right clicked on the position of this renderfragment(X,y coordinates), delete it from the _components list
 
 
-    private void Add()
+    private async void Add()
     {
+        var parameters = new DialogParameters();
+        parameters.Add("_content", "Add Obstacle");
+        parameters.Add("height", 100);
+        parameters.Add("width", 100);
+
+        var result = DialogService.Show<ObstacleDialog>("Add Obstacle",parameters);
+        var dialogResult = await result.Result;
+        var array = dialogResult.As<int[]>();
+        //width = array[0];
+        //height = array[1];
+
+
     //TODO AddObstacle Dialog returns x,y,width,height
         Objects.Add(new Objects(X, Y, width, height));
         Console.WriteLine(Objects.Count);

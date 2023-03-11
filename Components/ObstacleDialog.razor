@@ -1,0 +1,28 @@
+﻿<MudDialog>
+    <DialogContent>
+        <Mudtext>@_content</Mudtext>
+        <MudNumericField T = "int" Label="Width" @bind-Value="@width"></MudNumericField>
+        <MudNumericField T = "int" Label="Height" @bind-Value="@height"></MudNumericField>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    //save the width and height parameters
+
+    [Parameter]
+    public string _content { get; set; } = "";
+    
+    [Parameter]
+    public int height { get; set; } = 100;
+
+    [Parameter]
+    public int width { get; set; } = 100;
+    void Submit() => MudDialog.Close(DialogResult.Ok(new int[width, height]));
+    //void Submit() => MudDialog.Close(DialogResult.Ok(true));
+    void Cancel() => MudDialog.Cancel();
+}
