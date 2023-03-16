@@ -47,7 +47,9 @@
         <MudTd DataLabel="Output">@context.Output</MudTd>
         <MudTd DataLabel="Price">@context.Price</MudTd>
         <MudTd>
-            <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="() => deletePanel(context.id)"></MudIconButton>
+            <MudTooltip Text="Delete Panel">
+                <MudIconButton Icon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="() => deletePanel(context.id)"></MudIconButton>
+            </MudTooltip>
         </MudTd>
     </RowTemplate>
 
@@ -69,10 +71,19 @@
 
     private async void OpenNewSolarPanelDialog()
     {
-        var options = new DialogOptions { CloseOnEscapeKey = true };
-        var res = DialogService.Show<NewSolarPanelDialog>("New Solar Panel", options);
-        await res.Result;
-        _napelems = await napelemController.GetAllNapelem();
+        try
+        {
+            var options = new DialogOptions { CloseOnEscapeKey = true };
+            var result = DialogService.Show<NewSolarPanelDialog>("New Solar Panel", options);
+            var res = await result.Result;
+            if (!res.Data.Equals(true)) return;
+            _napelems = await napelemController.GetAllNapelem();
+        }
+        catch (Exception e)
+        {
+            //ignored
+        }
+        
         StateHasChanged();
     }
 
@@ -82,15 +93,16 @@
         {
             DialogParameters parameters = new() { { "_content", "Are you sure you want to delete this panel?" } };
             var result = DialogService.Show<ConfirmDialog>("Warning!", parameters);
-            var asd = await result.Result;
-            if (!asd.Data.Equals(true)) return;
+            var res = await result.Result;
+            if (!res.Data.Equals(true)) return;
             napelemController.DeleteNapelem(ID);
             _napelems = await napelemController.GetAllNapelem();
             StateHasChanged();
         }
         catch (Exception e)
         {
-            // ignored
+    // ignored
         }
     }
+
 }

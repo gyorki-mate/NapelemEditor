@@ -1,99 +1,92 @@
 ﻿@inject MouseService mouseSrv;
 @inject IDialogService DialogService;
-@page "/canvas"
-@using Microsoft.AspNetCore.Components.Rendering
-@using System.Runtime.CompilerServices
-@using System.Reflection
 @using MudBlazor.Extensions
 
-<div class="row g-3 align-items-center">
-    <div class="col-auto">
-        <label class="col-form-label">Solar system position:</label>
-    </div>
-    <div class="col-auto">
-        <input type="number" class="form-control" @bind=X/>
-    </div>
-    <div class="col-auto">
-        <input type="number" @bind=Y class="form-control"/>
-    </div>
-</div>
+@page "/canvas"
+<PageTitle>Canvas</PageTitle>
+<MudTabs @bind-ActivePanelIndex="_index" Border="true" Outlined="true" PanelClass="px-4 py-6" ApplyEffectsToContainer="true">
+    <ChildContent>
+        @foreach (var item in _tabs)
+        {
+            <MudTabPanel Text="@item.Name" Tag="@item.Id">
 
-<MudButton OnClick="@Add">Add</MudButton>
-<div class="row mt-2">
-    <div class="col">
-        <svg class="bg-light" width="@canvasWidth" height="@canvasHeigth" xmlns="http://www.w3.org/2000/svg"
-             @onmousemove=@(e => mouseSrv.FireMove(this, e))
+                <MudButton OnClick="@Add">Add</MudButton>
+                <div class="row mt-2">
+                    <div class="col">
+                        <svg class="bg-light" width="@canvasWidth" height="@canvasHeigth" xmlns="http://www.w3.org/2000/svg"
+                             @onmousemove=@(e => mouseSrv.FireMove(this, e))
              @onmouseup=@(e => mouseSrv.FireUp(this, e))
              @ondblclick=@(e => delete(this, e))>
-            @foreach (var item in Objects)
-            {
-                <Draggable @bind-X="item.X" @bind-Y="item.Y">
-                    <Obstacle height="item.Height" width="item.Width"/>
-                </Draggable>
-            }
-        </svg>
-    </div>
-</div>
+                            @foreach (var item in Objects)
+                            {
+                                <Draggable @bind-X="item.X" @bind-Y="item.Y">
+                                    <Obstacle height="item.Height" width="item.Width"/>
+                                </Draggable>
+                            }
+                        </svg>
+                    </div>
+                </div>
+
+            </MudTabPanel>
+        }
+    </ChildContent>
+</MudTabs>
+
 
 @code {
+
+    private class TabView
+    {
+        public string Name { get; set; }
+        public string Content { get; set; }
+        public Guid Id { get; set; }
+    }
 
     [Parameter]
     public RenderFragment RenderFragment { get; set; }
 
+    private int _index = 0;
     static double X = 290;
     static double Y = 250;
     int width = 40;
     int height = 40;
     static int c = 0;
     private string canvasWidth { get; set; } = "1200";
-    public string canvasHeigth { get; set; } = "500";
+    private string canvasHeigth { get; set; } = "500";
     List<Objects> Objects = new();
-
-        @*   static readonly List<RenderFragment> _components = new() *@
-        @*   { *@
-        @*       Obstacles *@
-        @*   }; *@
-        @* *@
-        @*   private static RenderFragment Obstacles = __builder => *@
-        @*   { *@
-        @* *@
-        @*       <Draggable X="@X" Y="Y"> *@
-        @*           <Obstacle width="width" height="height"/> *@
-        @*       </Draggable> *@
-        @* *@
-        @*            *@
-        @*            *@
-        @*        *@
-        @*   }; *@
-    //create a function when right clicked on the position of this renderfragment(X,y coordinates), delete it from the _components list
+    private List<TabView> _tabs = new();
 
 
     private async void Add()
     {
-        var parameters = new DialogParameters();
-        parameters.Add("_content", "Add Obstacle");
-        parameters.Add("height", 100);
-        parameters.Add("width", 100);
+        var parameters = new DialogParameters
+        {
+            { "_content", "Add Obstacle" },
+            { "height", 100 },
+            { "width", 100 }
+        };
+        try
+        {
+            var result = DialogService.Show<ObstacleDialog>("Add Obstacle", parameters);
+            var dialogResult = await result.Result;
+            width = dialogResult.Data.As<Tuple<int, int>>().Item1;
+            height = dialogResult.Data.As<Tuple<int, int>>().Item2;
+            Objects.Add(new Objects(X, Y, width, height));
+        }
+        catch (Exception e)
+        {
+    //ignored
+        }
 
-        var result = DialogService.Show<ObstacleDialog>("Add Obstacle",parameters);
-        var dialogResult = await result.Result;
-        var array = dialogResult.As<int[]>();
-        //width = array[0];
-        //height = array[1];
-
-
-    //TODO AddObstacle Dialog returns x,y,width,height
-        Objects.Add(new Objects(X, Y, width, height));
-        Console.WriteLine(Objects.Count);
         StateHasChanged();
     }
 
     private void delete(object? obj, MouseEventArgs e)
     {
-        foreach (var o in Objects.Where(o => o.X+o.Width/2 < e.OffsetX + o.Width/2 
-                                             && o.X+o.Width/2  > e.OffsetX - o.Width/2 
-                                             && o.Y+o.Height/2 < e.OffsetY + o.Height/2 
-                                             && o.Y+o.Height/2 > e.OffsetY - o.Height/2))
+        foreach (var o in Objects.Where(o => o.X + o.Width / 2 < e.OffsetX + o.Width / 2
+                                             && o.X + o.Width / 2 > e.OffsetX - o.Width / 2
+                                             && o.Y + o.Height / 2 < e.OffsetY + o.Height / 2
+                                             && o.Y + o.Height / 2 > e.OffsetY - o.Height / 2))
         {
             Objects.Remove(o);
             StateHasChanged();
@@ -102,4 +95,12 @@
             return;
         }
     }
+
+    protected override void OnInitialized()
+    {
+        _tabs.Add(new TabView { Name = "Tab A", Id = Guid.NewGuid() });
+        _tabs.Add(new TabView { Name = "Tab B", Id = Guid.NewGuid() });
+        _tabs.Add(new TabView { Name = "Tab C", Id = Guid.NewGuid() });
+    }
+
 }

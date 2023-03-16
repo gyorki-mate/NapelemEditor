@@ -11,18 +11,26 @@
 </MudDialog>
 
 @code {
-    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
     //save the width and height parameters
 
     [Parameter]
     public string _content { get; set; } = "";
-    
+
     [Parameter]
     public int height { get; set; } = 100;
 
     [Parameter]
     public int width { get; set; } = 100;
-    void Submit() => MudDialog.Close(DialogResult.Ok(new int[width, height]));
+
+    void Submit()
+    {
+        MudDialog.Close(DialogResult.Ok(new Tuple<int,int>(height,width)));
+    }
+
     //void Submit() => MudDialog.Close(DialogResult.Ok(true));
     void Cancel() => MudDialog.Cancel();
 }
