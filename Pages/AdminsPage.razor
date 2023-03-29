@@ -1,0 +1,110 @@
+﻿@using NapelemEditor.Models
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject NavigationManager UriHelper
+@inject IUser userController
+<h3>AdminsPage</h3>
+@page "/admins"
+
+
+<MudTable Items="users">
+    <ToolBarContent>
+        <MudTooltip Class="align-content-lg-end" Text="Add user">
+            <MudIconButton OnClick="OpenDialog" Icon="@Icons.Material.Outlined.Add" Size="Size.Large"/>
+        </MudTooltip>
+        <MudItem xs="6">
+            <MudTextField @bind-Value="searchString1" Immediate="true" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0" MaxLength="45"/>
+        </MudItem>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>
+            <MudTableSortLabel SortBy="new Func<Users, object>(x => x.id)">#</MudTableSortLabel>
+        </MudTh>
+        <MudTh>
+            <MudTableSortLabel SortBy="new Func<Users, object>(x => x.UserName)">Username</MudTableSortLabel>
+        </MudTh>
+        <MudTh> Delete</MudTh>
+    </HeaderContent>
+    <RowTemplate Context="userContext">
+        <MudTd DataLabel="id">@userContext.id</MudTd>
+        <MudTd DataLabel="uname">@userContext.UserName</MudTd>
+        <MudTd DataLabel="del">
+            @* @if (userContext.UserName != "Amplio") *@
+            @* { *@
+            <MudIconButton Icon="@Icons.Filled.Delete" OnClick="@(() => { DeleteUser(userContext.id); })"/>
+            @* } *@
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+<MudScrollToTop Style="bottom: 30px">
+    <MudFab Icon="@Icons.Filled.KeyboardArrowUp" Color="Color.Secondary"/>
+</MudScrollToTop>
+
+
+@code {
+    List<Users> users = new();
+    private string searchString1 = "";
+    DialogOptions mediumWidth = new() { MaxWidth = MaxWidth.Medium, FullWidth = true };
+
+
+    private async void DeleteUser(string index)
+    {
+        try
+        {
+            DialogParameters parameters = new() { { "_content", "Are you sure you want to delete this user? It can not be undone." } };
+            var result = DialogService.Show<ConfirmDialog>("Warning!", parameters);
+            var dialogResult = await result.Result;
+            if (!dialogResult.Data.Equals(true)) return;
+            userController.DeleteUser(index);
+            Snackbar.Add("User deleted", Severity.Success);
+            users = await userController.GetAllUsers();
+        }
+        catch (Exception e)
+        {
+    //ignored
+        }
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await userController.GetAllUsers();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await checkPermissionAsync();
+    }
+
+    private async void OpenDialog()
+    {
+        var res = DialogService.Show<Register>("Add new Admin", mediumWidth);
+        var result = await res.Result;
+        if (result.Data is null) return;
+        Snackbar.Add("Admin added!", Severity.Success);
+    }
+
+    private async Task checkPermissionAsync()
+    {
+        if (await localStorage.ContainKeyAsync("isAuthenticated"))
+        {
+            Console.WriteLine("authenticated");
+            if (await localStorage.GetItemAsync<bool>("isAuthenticated") is false)
+            {
+                Snackbar.Add("You have violated the law", Severity.Error);
+                UriHelper.NavigateTo("/", forceLoad: true);
+            }
+        }
+        if (await sessionStorage.ContainKeyAsync("isAuthenticated"))
+        {
+            if (await sessionStorage.GetItemAsync<bool>("isAuthenticated") is false)
+
+            {
+                Snackbar.Add("You have violated the law", Severity.Error);
+                UriHelper.NavigateTo("/", forceLoad: true);
+            }
+        }
+    }
+}

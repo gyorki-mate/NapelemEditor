@@ -13,7 +13,7 @@
             <MudTextField T="string" Required="true" Label="Username" Variant="Variant.Outlined" MaxLength="45" @bind-Value="UserName"/>
             <MudTextField T="string" Required="true" Label="Password" Variant="Variant.Outlined" MaxLength="45" InputType="InputType.Password" @bind-Value="Password"/>
             <br/>
-            <MudGrid Justify="Justify.SpaceBetween" >
+            <MudGrid Justify="Justify.SpaceBetween">
                 <MudItem Class="align-content-start">
                     <MudCheckBox T="bool" @bind-Checked="keepMeLoggedIn">Remember me</MudCheckBox>
                 </MudItem>
@@ -27,6 +27,7 @@
 
 
 @code {
+
     [CascadingParameter]
     MudDialogInstance MudDialog { get; set; }
 
@@ -39,24 +40,29 @@
 
     private async void Login()
     {
-        if(string.IsNullOrEmpty(UserName) || string.IsNullOrEmpty(Password))
+        if (string.IsNullOrEmpty(UserName) || string.IsNullOrEmpty(Password))
         {
             Snackbar.Add("Empty username or password");
             return;
         }
-        Users user;
+        Users? user;
         try
         {
-            user = userController.GetUser(UserName);
+            user = await userController.GetUser(UserName);
         }
         catch
         {
-            Snackbar.Add("Invalid username or password");
+            Snackbar.Add("Invalid username or password", Severity.Error);
+            return;
+        }
+        if (user is null)
+        {
+            Snackbar.Add("Invalid username or password", Severity.Error);
             return;
         }
         var salted_pass = GenerateSHA256Hash(Password, user.Salt);
-      
-        if(!string.Equals(user.Password, salted_pass, StringComparison.CurrentCultureIgnoreCase))
+
+        if (!string.Equals(user.Password, salted_pass, StringComparison.CurrentCultureIgnoreCase))
         {
             Snackbar.Add("Invalid username or password");
             return;
@@ -65,21 +71,18 @@
         {
             await localStorage.SetItemAsync("isAuthenticated", true);
             await localStorage.SetItemAsync("UserName", UserName);
-            await localStorage.SetItemAsync("Role", user.role);
         }
         else
         {
             await sessionStorage.SetItemAsync("isAuthenticated", true);
             await sessionStorage.SetItemAsync("UserName", UserName);
-            await sessionStorage.SetItemAsync("Role", user.role);
-            
         }
         isAuthenticated = true;
         Snackbar.Add("Login successful");
-        Nav.NavigateTo(Nav.Uri,forceLoad:true);
+        Nav.NavigateTo(Nav.Uri, forceLoad: true);
         MudDialog.Close();
     }
-    
+
     private static string ByteArrayToHexString(byte[] ba)
     {
         StringBuilder hex = new(ba.Length * 2);
@@ -98,4 +101,5 @@
 
         return ByteArrayToHexString(hash);
     }
+
 }

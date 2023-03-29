@@ -4,8 +4,7 @@
 
 @page "/canvas"
 <PageTitle>Canvas</PageTitle>
-<MudTabs @bind-ActivePanelIndex="_index" Border="true" Outlined="true" PanelClass="px-4 py-6" ApplyEffectsToContainer="true">
-    <ChildContent>
+<MudDynamicTabs @ref="DynamicTabs" @bind-ActivePanelIndex="_index" Border="true" Outlined="true" AddTab="AddTab" >
         @foreach (var item in _tabs)
         {
             <MudTabPanel Text="@item.Name" Tag="@item.Id">
@@ -29,8 +28,7 @@
 
             </MudTabPanel>
         }
-    </ChildContent>
-</MudTabs>
+</MudDynamicTabs>
 
 
 @code {
@@ -42,9 +40,15 @@
         public Guid Id { get; set; }
     }
 
+    private void AddTab()
+    {
+        
+    }
+
     [Parameter]
     public RenderFragment RenderFragment { get; set; }
 
+    private MudDynamicTabs DynamicTabs;
     private int _index = 0;
     static double X = 290;
     static double Y = 250;

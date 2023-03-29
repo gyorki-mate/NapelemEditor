@@ -36,18 +36,20 @@ public class UserController : IUser
     }
     
     //get user by username
-    public  Users GetUser(string userName)
+    public async Task<Users?> GetUser(string userName)
     {
+        Users? user;
         try
         {
-            var User = context.UserRecord.Find(x => x.UserName == userName).FirstOrDefault();
-            return  User;
+            user =  await context.UserRecord.Find(x => x.UserName == userName).FirstOrDefaultAsync();
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
             throw;
         }
+        return  user;
+
     }
 
     public async void UpdateUser(Users user)
