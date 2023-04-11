@@ -1,37 +1,63 @@
 ﻿@using NapelemEditor.Interfaces
 @inject IMouseService mouseSrv;
- 
-<g transform="translate(@x, @y)" cursor=@cursor @onmousedown=OnDown 
+
+<g transform="translate(@x, @y)" cursor=@cursor @onmousedown=OnDown
    @onmousedown:stopPropagation="true">
     @ChildContent
 </g>
 
 @code {
-    [Parameter] public RenderFragment? ChildContent { get; set; }
-    
-    double? x;
+
     [Parameter]
-    public double X { 
+    public RenderFragment? ChildContent { get; set; }
+
+    double? x;
+
+    [Parameter]
+    public double X
+    {
         get => x ?? 0;
-        set { if (!x.HasValue || (!isDown & XChanged.HasDelegate)) { x = value; } } 
+        set
+        {
+            if (!x.HasValue || (!isDown & XChanged.HasDelegate))
+            {
+                x = value;
+            }
+        }
     }
-    [Parameter] public EventCallback<double> XChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<double> XChanged { get; set; }
 
     double? y;
+
     [Parameter]
-    public double Y {
+    public double Y
+    {
         get => y ?? 0;
-        set { if (!y.HasValue || (!isDown & YChanged.HasDelegate)) { y = value; } }
+        set
+        {
+            if (!y.HasValue || (!isDown & YChanged.HasDelegate))
+            {
+                y = value;
+            }
+        }
     }
-    [Parameter] public EventCallback<double> YChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<double> YChanged { get; set; }
 
     [Parameter]
     public int height { get; set; }
-    
+
     [Parameter]
     public int width { get; set; }
 
-    protected override void OnInitialized() {
+    [Parameter]
+    public bool isLocked { get; set; } = false;
+
+    protected override void OnInitialized()
+    {
         mouseSrv.OnMove += OnMove;
         mouseSrv.OnUp += OnUpLeave;
         mouseSrv.OnLeave += OnUpLeave;
@@ -41,9 +67,12 @@
 
     string cursor = "grab";
     bool _isDown;
-    bool isDown {
+
+    bool isDown
+    {
         get => _isDown;
-        set {
+        set
+        {
             _isDown = value;
             cursor = _isDown ? "grabbing" : "grab";
         }
@@ -51,7 +80,14 @@
 
     double cursorX;
     double cursorY;
-    void OnDown(MouseEventArgs e) {
+
+    void OnDown(MouseEventArgs e)
+    {
+        if (isLocked)
+        {
+            Dispose();
+            return;
+        }
         isDown = true;
         cursorX = e.ClientX;
         cursorY = e.ClientY;
@@ -60,10 +96,11 @@
     void OnUpLeave(object? _, MouseEventArgs e)
     {
         isDown = false;
-    } 
+    }
 
 
-    void OnMove(object? _, MouseEventArgs e) {
+    void OnMove(object? _, MouseEventArgs e)
+    {
         if (!isDown)
             return;
 
@@ -77,10 +114,12 @@
         YChanged.InvokeAsync(y.Value);
     }
 
-    public void Dispose() {
+    
+    public void Dispose()
+    {
         mouseSrv.OnMove -= OnMove;
         mouseSrv.OnUp -= OnUpLeave;
         mouseSrv.OnLeave -= OnUpLeave;
     }
-    
+
 }
