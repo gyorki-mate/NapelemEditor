@@ -44,7 +44,7 @@
     {
         try
         {
-            DialogParameters parameters = new() { { "_content", "Are you sure you want to save this user?" } };
+            DialogParameters parameters = new() { { "Content", "Are you sure you want to save this user?" } };
             var result = DialogService.Show<ConfirmDialog>("Warning!", parameters);
             var asd = await result.Result;
             Console.WriteLine("new user data "+ asd.Data);
@@ -97,14 +97,14 @@
         }
         try
         {
-            Console.WriteLine("where");
+            // Console.WriteLine("where");
             var checkUser =  userController.GetUser(_username);
-            Console.WriteLine("user null: "  + checkUser == null);
-            Console.WriteLine("null res" + checkUser.Result == null);
-            Console.WriteLine("fault" + checkUser.IsFaulted);
-            Console.WriteLine("complete " + checkUser.IsCompleted);
-            Console.WriteLine("username:" + checkUser.Result.UserName + "password: "+ checkUser.Result.Password);
-            Console.WriteLine("id"+checkUser.Result.id);
+            // Console.WriteLine("user null: "  + checkUser == null);
+            // Console.WriteLine("null res" + checkUser.Result == null);
+            // Console.WriteLine("fault" + checkUser.IsFaulted);
+            // Console.WriteLine("complete " + checkUser.IsCompleted);
+            // Console.WriteLine("username:" + checkUser.Result.UserName + "password: "+ checkUser.Result.Password);
+            // Console.WriteLine("id"+checkUser.Result.id);
             if(checkUser.Result.UserName != string.Empty)
             {
                 Snackbar.Add("Username already exists", Severity.Error);

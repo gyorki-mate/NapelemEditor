@@ -1,15 +1,15 @@
-﻿@inject NavigationManager uriHelper;
+﻿@inject NavigationManager UriHelper;
 @inject IDialogService DialogService
-@inject Blazored.SessionStorage.ISessionStorageService sessionStorage
-@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject Blazored.SessionStorage.ISessionStorageService SessionStorage
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 
 
-@if (isAuthenticated)
+@if (IsAuthenticated)
 {
     <MudGrid Justify="Justify.FlexEnd" Spacing="3">
 
         <MudItem Class="justify-end">
-            <MudLink Color="Color.Info" Typo="Typo.h6" Href="/Profile">Current User: @Username</MudLink>
+            <MudLink Color="Color.Info" Typo="Typo.h6" Href="/Profile">Current User: @_username</MudLink>
         </MudItem>
         <MudItem Class="justify-end">
             <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="SignOut">Logout</MudButton>
@@ -33,37 +33,37 @@ else
 @code {
 
     [Parameter]
-    public bool isAuthenticated { get; set; }
+    public bool IsAuthenticated { get; set; }
 
-    private string Username;
+    private string _username;
 
 
     protected override async void OnInitialized()
     {
-        if (await sessionStorage.ContainKeyAsync("isAuthenticated"))
+        if (await SessionStorage.ContainKeyAsync("isAuthenticated"))
         {
-            Username = await sessionStorage.GetItemAsync<string>("Username");
+            _username = await SessionStorage.GetItemAsync<string>("Username");
         }
-        Username = await localStorage.GetItemAsync<string>("Username");
+        _username = await LocalStorage.GetItemAsync<string>("Username");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (await sessionStorage.ContainKeyAsync("isAuthenticated"))
+        if (await SessionStorage.ContainKeyAsync("isAuthenticated"))
         {
-            var tempUname = await sessionStorage.GetItemAsync<string>("UserName");
-            if (tempUname != Username)
+            var tempUname = await SessionStorage.GetItemAsync<string>("UserName");
+            if (tempUname != _username)
             {
-                Username = tempUname;
+                _username = tempUname;
                 StateHasChanged();
             }
         }
-        if (await localStorage.ContainKeyAsync("isAuthenticated"))
+        if (await LocalStorage.ContainKeyAsync("isAuthenticated"))
         {
-            var tempUname = await localStorage.GetItemAsync<string>("UserName");
-            if (tempUname != Username)
+            var tempUname = await LocalStorage.GetItemAsync<string>("UserName");
+            if (tempUname != _username)
             {
-                Username = tempUname;
+                _username = tempUname;
                 StateHasChanged();
             }
         }
@@ -81,18 +81,18 @@ else
 
     private async void SignOut()
     {
-        DialogParameters parameters = new() { { "_content", "Are you sure you want to logout? " } };
+        DialogParameters parameters = new() { { "Content", "Are you sure you want to logout? " } };
 
         var result = DialogService.Show<ConfirmDialog>("Warning!", parameters);
         var res = await result.Result;
         try
         {
             if (!res.Data.Equals(true)) return;
-            await sessionStorage.RemoveItemAsync("isAuthenticated");
+            await SessionStorage.RemoveItemAsync("isAuthenticated");
 
-            await localStorage.RemoveItemAsync("isAuthenticated");
+            await LocalStorage.RemoveItemAsync("isAuthenticated");
 
-            uriHelper.NavigateTo("/", forceLoad: true);
+            UriHelper.NavigateTo("/", forceLoad: true);
         }
         catch (Exception e)
         {

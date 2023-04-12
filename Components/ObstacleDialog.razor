@@ -1,11 +1,11 @@
 ﻿<MudDialog>
     <DialogContent>
-        <Mudtext>@_content</Mudtext>
-        <MudNumericField T = "int" Label="Width" @bind-Value="@width"></MudNumericField>
-        <MudNumericField T = "int" Label="Height" @bind-Value="@height"></MudNumericField>
+        <Mudtext>@Content</Mudtext>
+        <MudNumericField T = "int" Label="Width" @bind-Value="@Width"></MudNumericField>
+        <MudNumericField T = "int" Label="Height" @bind-Value="@Height"></MudNumericField>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton OnClick="@(() => MudDialog.Cancel())">Cancel</MudButton>
         <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
     </DialogActions>
 </MudDialog>
@@ -18,19 +18,16 @@
     //save the width and height parameters
 
     [Parameter]
-    public string _content { get; set; } = "";
+    public string Content { get; set; } = "";
 
     [Parameter]
-    public int height { get; set; } = 100;
+    public int Height { get; set; } = 100;
 
     [Parameter]
-    public int width { get; set; } = 100;
+    public int Width { get; set; } = 100;
 
     void Submit()
     {
-        MudDialog.Close(DialogResult.Ok(new Tuple<int,int>(height,width)));
+        MudDialog.Close(DialogResult.Ok(new Tuple<int,int>(Height,Width)));
     }
-
-    //void Submit() => MudDialog.Close(DialogResult.Ok(true));
-    void Cancel() => MudDialog.Cancel();
 }

@@ -1,7 +1,7 @@
 ﻿@using System.Text
 @using NapelemEditor.Models
 @inject IDialogService DialogService
-@inject IUser userController;
+@inject IUser UserController;
 @inject ISnackbar Snackbar;
 
 <h3>AdminDialog</h3>
@@ -9,10 +9,10 @@
 <MudDialog>
     <DialogContent>
         <div class="d-flex flex-column py-1">
-            <MudForm @bind-IsValid="@_success" @ref="form">
-                <MudTextField @bind-Value="_username" Required="true" Immediate="true" Label=" Username " Variant="Variant.Outlined" MaxLength="45" HelperText="Username for new user"/>
-                <MudTextField @bind-Value="_password" Required="true" Immediate="true" Label="Password" Variant="Variant.Outlined" MaxLength="45" @ref="pwField1" InputType="InputType.Password" HelperText="Choose a strong password"/>
-                <MudTextField @bind-Value="_passwordAgain" Required="true" Immediate="true" Label="Password Again" Variant="Variant.Outlined" InputType="InputType.Password" MaxLength="45" Validation="@(new Func<string, string>(PasswordMatch))" HelperText="Repeat the password"/>
+            <MudForm @bind-IsValid="@_success" @ref="_form">
+                <MudTextField @bind-Value="Username" Required="true" Immediate="true" Label=" Username " Variant="Variant.Outlined" MaxLength="45" HelperText="Username for new user"/>
+                <MudTextField @bind-Value="Password" Required="true" Immediate="true" Label="Password" Variant="Variant.Outlined" MaxLength="45" @ref="_pwField1" InputType="InputType.Password" HelperText="Choose a strong password"/>
+                <MudTextField @bind-Value="PasswordAgain" Required="true" Immediate="true" Label="Password Again" Variant="Variant.Outlined" InputType="InputType.Password" MaxLength="45" Validation="@(new Func<string, string>(PasswordMatch))" HelperText="Repeat the password"/>
             </MudForm>
         </div>
     </DialogContent>
@@ -27,18 +27,18 @@
     MudDialogInstance MudDialog { get; set; }
 
     private bool _success;
-    private string _username { get; set; }
-    private string _password { get; set; }
-    private string _passwordAgain { get; set; }
+    private string Username { get; set; }
+    private string Password { get; set; }
+    private string PasswordAgain { get; set; }
     
-    MudTextField<string> pwField1;
-    MudForm form;
+    MudTextField<string> _pwField1;
+    MudForm _form;
     
-    private string salt;
+    private string _salt;
     
     private string? PasswordMatch(string arg)
     {
-        return pwField1.Value != arg ? "Passwords don't match" : null;
+        return _pwField1.Value != arg ? "Passwords don't match" : null;
     }
     
     
@@ -46,8 +46,8 @@
     {
         try
         {
-            DialogParameters parameters = new() { { "_content", "Are you sure you want to save this user?" } };
-            var result = DialogService.Show<ConfirmDialog>("Warning!", parameters);
+            DialogParameters parameters = new() { { "Content", "Are you sure you want to save this user?" } };
+            var result = await DialogService.ShowAsync<ConfirmDialog>("Warning!", parameters);
             var asd = await result.Result;
             Console.WriteLine(asd.Data);
             if (asd.Data.Equals(true)) AddUser();
@@ -87,12 +87,12 @@
     
     private void AddUser()
     {
-        if (_password != _passwordAgain)
+        if (Password != PasswordAgain)
         {
             Snackbar.Add("Passwords do not match", Severity.Error);
             return;
         }
-        if(_username.Length < 4)
+        if(Username.Length < 4)
         {
             Snackbar.Add("Username must be at least 4 characters", Severity.Error);
             return;
@@ -100,7 +100,7 @@
         try
         {
           
-            var checkUser = userController.GetUser(_username);
+            var checkUser = UserController.GetUser(Username);
             if(checkUser is not null )
             {
                 Snackbar.Add("Username already exists", Severity.Error);
@@ -113,14 +113,14 @@
             return;
         }
         var salt = CreateSalt();
-        _password = GenerateSHA256Hash(_password, salt);
+        Password = GenerateSHA256Hash(Password, salt);
         var user = new Users
         {
-            UserName = _username,
-            Password = _password,
+            UserName = Username,
+            Password = Password,
             Salt = salt
         };
-        userController.AddUser(user);
+        UserController.AddUser(user);
         MudDialog.Close(DialogResult.Ok(0));
     }
 }

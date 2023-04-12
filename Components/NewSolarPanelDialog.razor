@@ -64,11 +64,11 @@
     {
         try
         {
-            DialogParameters parameters = new() { { "_content", "Are you sure you want to add this panel?" } };
-            var result = DialogService.Show<ConfirmDialog>("Warning!", parameters);
+            DialogParameters parameters = new() { { "Content", "Are you sure you want to add this panel?" } };
+            var result = await DialogService.ShowAsync<ConfirmDialog>("Warning!", parameters);
             var asd = await result.Result;
             if (!asd.Data.Equals(true)) return;
-            Napelem napelem = new Napelem
+            var napelem = new Napelem
             {
                 Name = Name,
                 Type = Type,

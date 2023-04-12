@@ -1,4 +1,4 @@
-﻿<rect width="@width" height="@height"/>
+﻿<rect width="@width" height="@height" fill="@color"/>
 
 @code{
 
@@ -6,6 +6,9 @@
     public int height { get; set; }
     
     [Parameter]
-    public int width { get; set; }
+    public int width { get; set; } 
+    
+    [Parameter]
+    public string color { get; set; }
 
 }
