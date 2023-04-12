@@ -1,37 +1,61 @@
 ﻿@inject MouseService mouseSrv;
 @inject IDialogService DialogService;
+@inject INapelem napelemController
 @using MudBlazor.Extensions
+@using NapelemEditor.Models
 
 @page "/canvas"
 <PageTitle>Canvas</PageTitle>
 
 <MudDynamicTabs @ref="DynamicTabs" @bind-ActivePanelIndex="_index" Border="true" Outlined="true" AddTab="AddTab" PanelClass="px-4 py-6">
     <ChildContent>
-        @foreach (var item in _tabs)
-        {
-            <MudTabPanel Text="@item.Name" Tag="@item.Id">
+        <MudGrid>
+            <MudItem>
+                @foreach (var item in _tabs)
+                {
+                    <MudTabPanel Text="@item.Name" Tag="@item.Id">
 
-                <MudButton OnClick="@(() => AddObstacle(_index))" hidden="@item.CanvasLocked">Add Obstacle</MudButton>
-                <MudButton OnClick="LockCanvas" Color="Color.Warning" hidden="@item.CanvasLocked">Lock Canvas</MudButton>
-                <div class="row mt-2">
-                    <div class="col">
-                        <svg class="bg-light" width="@item.Width" height="@item.Height" xmlns="http://www.w3.org/2000/svg"
-                             @onmousemove=@(e => mouseSrv.FireMove(this, e))
-                    @onmouseup=@(e => mouseSrv.FireUp(this, e))
-                    @ondblclick=@(e => DeleteObstacle(this, e, _index))>
-                            @foreach (var obstacle in item.Obstacles)
-                            {
-                                <Draggable @bind-X="obstacle.X" @bind-Y="obstacle.Y" isLocked="obstacle.isLocked">
-                                    <Obstacle height="obstacle.Height" width="obstacle.Width"/>
-                                </Draggable>
-                            }
-                        </svg>
-                    </div>
-                </div>
+                        <MudButton OnClick="@(() => AddObstacle(_index))" hidden="@item.CanvasLocked">Add Obstacle</MudButton>
+                        <MudButton OnClick="@(() => LockCanvas(_index))" Color="Color.Warning" hidden="@item.CanvasLocked">Lock Canvas</MudButton>
+                        <div class="row mt-2">
+                            <div class="col">
+                                <svg class="bg-light" width="@item.Width" height="@item.Height" xmlns="http://www.w3.org/2000/svg"
+                                     @onmousemove=@(e => mouseSrv.FireMove(this, e))
+                                    @onmouseup=@(e => mouseSrv.FireUp(this, e))
+                                    @ondblclick=@(e => DeleteObstacle(this, e))>
+                                    @foreach (var obstacle in item.Obstacles)
+                                    {
+                                        <Draggable @bind-X="obstacle.X" @bind-Y="obstacle.Y" isLocked="obstacle.isLocked">
+                                            <Obstacle height="obstacle.Height" width="obstacle.Width"/>
+                                        </Draggable>
+                                    }
+                                    @foreach (var panel in item.Panels)
+                                    {
+                                        <Draggable @bind-X="panel.X" @bind-Y="panel.Y" isLocked="panel.isLocked">
+                                            <Obstacle height="panel.Height" width="panel.Width"/>
+                                        </Draggable>
+                                    }
+                                </svg>
+                            </div>
+                        </div>
 
+                    </MudTabPanel>
+                }
+            </MudItem>
+            <MudItem>
+                <MudButtonGroup VerticalAlign="true">
+                    @foreach (var solarPanel in _solarPanels)
+                    {
+                        <MudButton OnClick="@(() => AddPanel(solarPanel.Width, solarPanel.Height))">
+                            <MudIcon Icon="@Icons.Material.Filled.SolarPower"/>
+                            @(solarPanel.Name + " - " + solarPanel.Width + "x" + solarPanel.Height)
+                        </MudButton>
+                    }
+                </MudButtonGroup>
 
-            </MudTabPanel>
-        }
+            </MudItem>
+        </MudGrid>
+
     </ChildContent>
 
 </MudDynamicTabs>
@@ -43,6 +67,7 @@
     {
         public string Name { get; set; }
         public List<Objects> Obstacles = new();
+        public List<Objects> Panels = new();
         public Guid Id { get; set; }
         public bool CanvasLocked { get; set; }
         public string Width { get; set; } = "1200";
@@ -54,25 +79,27 @@
     public RenderFragment RenderFragment { get; set; }
 
     private MudDynamicTabs DynamicTabs;
-    private int _index = 0;
+    private int _index
+    
+    ;
     static double X = 290;
     static double Y = 250;
     int width = 40;
     int height = 40;
-    static int c = 0;
-    List<Objects> Obstacles = new();
     private List<TabView> _tabs = new();
+    private List<Napelem> _solarPanels = new();
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         _tabs.Add(new TabView { Name = "", Id = Guid.NewGuid() });
+        _solarPanels = await napelemController.GetAllNapelem();
     }
 
     private void AddTab()
     {
         _tabs.Add(new TabView { Name = "", Id = Guid.NewGuid() });
     }
-    
+
     private async void AddObstacle(int index)
     {
         var parameters = new DialogParameters
@@ -97,14 +124,15 @@
         StateHasChanged();
     }
 
-    private void DeleteObstacle(object? obj, MouseEventArgs e, int index )
+    private void DeleteObstacle(object? obj, MouseEventArgs e)
     {
-        foreach (var o in _tabs[index].Obstacles.Where(o => o.X + o.Width / 2 < e.OffsetX + o.Width / 2
-                                               && o.X + o.Width / 2 > e.OffsetX - o.Width / 2
-                                               && o.Y + o.Height / 2 < e.OffsetY + o.Height / 2
-                                               && o.Y + o.Height / 2 > e.OffsetY - o.Height / 2))
+    //look for panels as well
+        foreach (var o in _tabs[_index].Obstacles.Where(o => o.X + o.Width / 2 < e.OffsetX + o.Width / 2
+                                                             && o.X + o.Width / 2 > e.OffsetX - o.Width / 2
+                                                             && o.Y + o.Height / 2 < e.OffsetY + o.Height / 2
+                                                             && o.Y + o.Height / 2 > e.OffsetY - o.Height / 2))
         {
-            _tabs[index].Obstacles.Remove(o);
+            _tabs[_index].Obstacles.Remove(o);
             StateHasChanged();
     // Console.WriteLine(o.X + " X position within : " + (o.Width - e.OffsetX) + " and " +( o.Width + e.OffsetX));
     // Console.WriteLine(o.Y + " Y position within : " + (o.Height - e.OffsetY) + " and " +(o.Height + e.OffsetY));
@@ -112,13 +140,18 @@
         }
     }
 
-    private void LockCanvas()
+    private void LockCanvas(int index)
     {
-        // foreach (var obstacle in Obstacles)
-        // {
-        //     obstacle.isLocked = true;
-        // }
-        // canvasLocked = true;
+        foreach (var obstacle in _tabs[index].Obstacles)
+        {
+            obstacle.isLocked = true;
+        }
+        _tabs[index].CanvasLocked = true;
+    }
+
+    private void AddPanel(int width, int height)
+    {
+        _tabs[_index].Panels.Add(new Objects(X, Y, width, height));
     }
 
 }
