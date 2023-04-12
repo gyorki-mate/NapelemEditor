@@ -6,8 +6,8 @@ namespace NapelemEditor.Models;
 public class Users
 {
     [BsonRepresentation(BsonType.ObjectId)]
-    public string id { get; } = ObjectId.GenerateNewId().ToString();
-    public string UserName { get; set; }
-    public string Password { get; set; }
-    public string Salt { get; set; }
+    public string id { get; set; } 
+    [BsonElement("userName")]  public string UserName { get; set; }
+    [BsonElement("password")]  public string Password { get; set; }
+    [BsonElement("salt")] public string Salt { get; set; }
 }

@@ -45,7 +45,7 @@
         try
         {
             DialogParameters parameters = new() { { "Content", "Are you sure you want to save this user?" } };
-            var result = DialogService.Show<ConfirmDialog>("Warning!", parameters);
+            var result = await DialogService.ShowAsync<ConfirmDialog>("Warning!", parameters);
             var asd = await result.Result;
             Console.WriteLine("new user data "+ asd.Data);
             if (asd.Data.Equals(true)) AddUser();
@@ -83,8 +83,9 @@
         return ByteArrayToHexString(hash);
     }
     
-    private void AddUser()
+    private async void AddUser()
     {
+        Console.WriteLine("skill?");
         if (_password != _passwordAgain)
         {
             Snackbar.Add("Passwords do not match", Severity.Error);
@@ -97,15 +98,15 @@
         }
         try
         {
-            // Console.WriteLine("where");
-            var checkUser =  userController.GetUser(_username);
+            Console.WriteLine("where");
+            var checkUser =  await userController.GetUser(_username);
             // Console.WriteLine("user null: "  + checkUser == null);
             // Console.WriteLine("null res" + checkUser.Result == null);
             // Console.WriteLine("fault" + checkUser.IsFaulted);
             // Console.WriteLine("complete " + checkUser.IsCompleted);
             // Console.WriteLine("username:" + checkUser.Result.UserName + "password: "+ checkUser.Result.Password);
             // Console.WriteLine("id"+checkUser.Result.id);
-            if(checkUser.Result.UserName != string.Empty)
+            if(checkUser is not null)
             {
                 Snackbar.Add("Username already exists", Severity.Error);
                 return;
@@ -113,8 +114,7 @@
         }
        catch(Exception e)
         {
-            Console.WriteLine(e.Message);
-            return;
+          //ignored
         }
         var salt = CreateSalt();
         _password = GenerateSHA256Hash(_password, salt);
