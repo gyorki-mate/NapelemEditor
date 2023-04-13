@@ -5,18 +5,22 @@
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject NavigationManager UriHelper
 @inject IUser UserController
+
 <h3>AdminsPage</h3>
 @page "/admins"
 
-<MudTable Items="_users">
+<MudTable Items="_users"
+          Filter="new Func<Users, bool>(FilterFunc1)">
     <ToolBarContent>
+        <MudItem xs="6">
+            <MudTextField @bind-Value="_searchString1" Immediate="true" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0" MaxLength="45" Clearable/>
+        </MudItem>
+        <MudSpacer/>
         <MudTooltip Class="align-content-lg-end" Text="Add user">
             <MudIconButton OnClick="OpenDialog" Icon="@Icons.Material.Outlined.Add" Size="Size.Large"/>
         </MudTooltip>
-        <MudItem xs="6">
-            <MudTextField @bind-Value="_searchString1" Immediate="true" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0" MaxLength="45"/>
-        </MudItem>
     </ToolBarContent>
+
     <HeaderContent>
         <MudTh>
             <MudTableSortLabel SortBy="new Func<Users, object>(x => x.UserName)">Username</MudTableSortLabel>
@@ -26,7 +30,7 @@
     <RowTemplate Context="userContext">
         <MudTd DataLabel="uname">@userContext.UserName</MudTd>
         <MudTd DataLabel="del">
-            <MudIconButton Icon="@Icons.Filled.Delete" OnClick="@(() => { DeleteUser(userContext.id); })"/>
+            <MudIconButton Icon="@Icons.Filled.Delete" Color="Color.Error" OnClick="@(() => { DeleteUser(userContext.id); })"/>
         </MudTd>
     </RowTemplate>
 </MudTable>
@@ -40,7 +44,6 @@
     private string _searchString1 = "";
     DialogOptions _mediumWidth = new() { MaxWidth = MaxWidth.Medium, FullWidth = true };
 
-
     private async void DeleteUser(string index)
     {
         try
@@ -52,13 +55,13 @@
             UserController.DeleteUser(index);
             Snackbar.Add("User deleted", Severity.Success);
             _users = await UserController.GetAllUsers();
+            StateHasChanged();
         }
         catch (Exception e)
         {
     //ignored
         }
     }
-
 
     protected override async Task OnInitializedAsync()
     {
@@ -72,10 +75,19 @@
 
     private async void OpenDialog()
     {
-        var res = DialogService.Show<Register>("Add new Admin", _mediumWidth);
-        var result = await res.Result;
-        if (result.Data is null) return;
-        Snackbar.Add("Admin added!", Severity.Success);
+        try
+        {
+            var res = await DialogService.ShowAsync<Register>("Add new Admin", _mediumWidth);
+            var result = await res.Result;
+            if (!result.Data.Equals(true)) return;
+            Snackbar.Add("Admin added!", Severity.Success);
+            _users = await UserController.GetAllUsers();
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+    //ignored
+        }
     }
 
     private async Task CheckPermissionAsync()
@@ -92,12 +104,18 @@
         if (await SessionStorage.ContainKeyAsync("isAuthenticated"))
         {
             if (await SessionStorage.GetItemAsync<bool>("isAuthenticated") is false)
-
             {
                 Snackbar.Add("You have violated the law", Severity.Error);
                 UriHelper.NavigateTo("/", forceLoad: true);
             }
         }
+    }
+
+    private bool FilterFunc1(Users user) => FilterFunc(user, _searchString1);
+
+    private bool FilterFunc(Users user, string searchString)
+    {
+        return string.IsNullOrWhiteSpace(searchString) || user.UserName.Contains(searchString, StringComparison.OrdinalIgnoreCase);
     }
 
 }

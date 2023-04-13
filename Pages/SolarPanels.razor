@@ -2,6 +2,7 @@
 @using NapelemEditor.Models
 @inject INapelem NapelemController
 @inject IDialogService DialogService
+@inject ISnackbar Snackbar
 
 <PageTitle>Solar Panels</PageTitle>
 
@@ -71,17 +72,17 @@
         try
         {
             var options = new DialogOptions { CloseOnEscapeKey = true };
-            var result = DialogService.Show<NewSolarPanelDialog>("New Solar Panel", options);
+            var result = await DialogService.ShowAsync<NewSolarPanelDialog>("New Solar Panel", options);
             var res = await result.Result;
+            Console.WriteLine(res);
             if (!res.Data.Equals(true)) return;
             _napelems = await NapelemController.GetAllNapelem();
+            StateHasChanged();
         }
         catch (Exception e)
         {
             //ignored
         }
-        
-        StateHasChanged();
     }
 
     private async void DeletePanel(string ID)

@@ -38,8 +38,7 @@
     {
         return pwField1.Value != arg ? "Passwords don't match" : null;
     }
-    
-    
+
     async void Close()
     {
         try
@@ -54,7 +53,6 @@
         {
     //Ignored
         }
-        
     }
     
      private static string CreateSalt(int size=30)
@@ -98,14 +96,7 @@
         }
         try
         {
-            Console.WriteLine("where");
             var checkUser =  await userController.GetUser(_username);
-            // Console.WriteLine("user null: "  + checkUser == null);
-            // Console.WriteLine("null res" + checkUser.Result == null);
-            // Console.WriteLine("fault" + checkUser.IsFaulted);
-            // Console.WriteLine("complete " + checkUser.IsCompleted);
-            // Console.WriteLine("username:" + checkUser.Result.UserName + "password: "+ checkUser.Result.Password);
-            // Console.WriteLine("id"+checkUser.Result.id);
             if(checkUser is not null)
             {
                 Snackbar.Add("Username already exists", Severity.Error);
@@ -125,6 +116,6 @@
             Salt = salt
         };
         userController.AddUser(user);
-        MudDialog.Close(DialogResult.Ok(0));
+        MudDialog.Close(DialogResult.Ok(true));
     }
 }
