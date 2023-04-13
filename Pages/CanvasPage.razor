@@ -3,6 +3,7 @@
 @inject INapelem NapelemController
 @using MudBlazor.Extensions
 @using NapelemEditor.Models
+@inject ISnackbar Snackbar
 
 @page "/canvas"
 <PageTitle>Canvas</PageTitle>
@@ -124,14 +125,12 @@
         foreach (var o in _tabs[_index].Obstacles.Where(o => !o.isLocked).Where(o => o.X + o.Width / 2 < e.OffsetX + o.Width / 2 && o.X + o.Width / 2 > e.OffsetX - o.Width / 2 && o.Y + o.Height / 2 < e.OffsetY + o.Height / 2 && o.Y + o.Height / 2 > e.OffsetY - o.Height / 2))
         {
             _tabs[_index].Obstacles.Remove(o);
-            StateHasChanged();
             return;
         }  
         
         foreach (var p in _tabs[_index].Panels.Where(p => p.X + p.Width / 2 < e.OffsetX + p.Width / 2 && p.X + p.Width / 2 > e.OffsetX - p.Width / 2 && p.Y + p.Height / 2 < e.OffsetY + p.Height / 2 && p.Y + p.Height / 2 > e.OffsetY - p.Height / 2))
         {
             _tabs[_index].Panels.Remove(p);
-            StateHasChanged();
             return;
         }
     }
@@ -147,6 +146,11 @@
 
     private void AddPanel(int width, int height)
     {
+        if (!_tabs[_index].CanvasLocked)
+        {
+            Snackbar.Add("Wall customization still in progress!", Severity.Error);
+            return;
+        }
         _tabs[_index].Panels.Add(new Objects(_x, _y, width, height));
     }
 

@@ -19,15 +19,11 @@
     </ToolBarContent>
     <HeaderContent>
         <MudTh>
-            <MudTableSortLabel SortBy="new Func<Users, object>(x => x.id)">#</MudTableSortLabel>
-        </MudTh>
-        <MudTh>
             <MudTableSortLabel SortBy="new Func<Users, object>(x => x.UserName)">Username</MudTableSortLabel>
         </MudTh>
         <MudTh> Delete</MudTh>
     </HeaderContent>
     <RowTemplate Context="userContext">
-        <MudTd DataLabel="id">@userContext.id</MudTd>
         <MudTd DataLabel="uname">@userContext.UserName</MudTd>
         <MudTd DataLabel="del">
             <MudIconButton Icon="@Icons.Filled.Delete" OnClick="@(() => { DeleteUser(userContext.id); })"/>

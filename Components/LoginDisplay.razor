@@ -9,7 +9,7 @@
     <MudGrid Justify="Justify.FlexEnd" Spacing="3">
 
         <MudItem Class="justify-end">
-            <MudLink Color="Color.Info" Typo="Typo.h6" Href="/Profile">Current User: @_username</MudLink>
+            <MudLink Color="Color.Info" Typo="Typo.h6" Href="/profile">Current User: @_username</MudLink>
         </MudItem>
         <MudItem Class="justify-end">
             <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="SignOut">Logout</MudButton>
@@ -23,9 +23,6 @@ else
     <MudGrid Justify="Justify.FlexEnd">
         <MudItem Class="justify-center">
             <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="SignIn">Login</MudButton>
-        </MudItem>
-        <MudItem>
-            <MudButton OnClick="Register">Register</MudButton>
         </MudItem>
     </MudGrid>
 }
