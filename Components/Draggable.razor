@@ -64,6 +64,13 @@
         base.OnInitialized();
     }
 
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (IsLocked)
+        {
+            _cursor = "default";
+        }
+    }
 
     string _cursor = "grab";
     bool _isDown;
@@ -114,7 +121,6 @@
         YChanged.InvokeAsync(_y.Value);
     }
 
-
     void Dispose()
     {
         MouseSrv.OnMove -= OnMove;
@@ -122,4 +128,22 @@
         MouseSrv.OnLeave -= OnUpLeave;
     }
 
+    bool CheckCollision(double newX, double newY, double otherX, double otherY, int otherWidth, int otherHeight)
+    {
+        double thisLeft = newX;
+        double thisRight = newX + Width;
+        double thisTop = newY;
+        double thisBottom = newY + Height;
+
+        double otherLeft = otherX;
+        double otherRight = otherX + otherWidth;
+        double otherTop = otherY;
+        double otherBottom = otherY + otherHeight;
+
+    // Check for collision by comparing the bounding boxes of the two objects
+        return thisLeft < otherRight &&
+               thisRight > otherLeft &&
+               thisTop < otherBottom &&
+               thisBottom > otherTop;
+    }
 }
