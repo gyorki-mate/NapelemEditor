@@ -9,8 +9,8 @@
 <MudDialog Class="Justify-content-start">
     <DialogContent >
         <MudForm @bind-IsValid="_success">
-            <MudTextField T="string" Required="true" Label="Username" Variant="Variant.Outlined" MaxLength="45" @bind-Value="UserName"/>
-            <MudTextField T="string" Required="true" Label="Password" Variant="Variant.Outlined" MaxLength="45" InputType="InputType.Password" @bind-Value="Password"/>
+            <MudTextField T="string" Required="true" Label="Username" Variant="Variant.Outlined" MaxLength="45" @bind-Value="UserName" Immediate/>
+            <MudTextField T="string" Required="true" Label="Password" Variant="Variant.Outlined" MaxLength="45" InputType="InputType.Password" @bind-Value="Password" Immediate/>
             <br/>
             <MudGrid Justify="Justify.SpaceBetween">
                 <MudItem Class="align-content-start">

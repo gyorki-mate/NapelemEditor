@@ -9,7 +9,6 @@ public class Napelem
     public string id { get; set; }
     public string Name { get; set; }
     public string Type { get; set; }
-    public string Shape { get; set; }
     public int Width { get; set; }
     public int Height { get; set; }
     public int Output { get; set; }

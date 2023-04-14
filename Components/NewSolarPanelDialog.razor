@@ -9,32 +9,26 @@
         <MudForm @bind-IsValid="_success">    
             <MudGrid Justify="Justify.SpaceBetween">
                 <MudItem xs="12">
-                    <MudTextField @bind-Value="Name" T="string" Label="Name" Variant="Variant.Outlined" MaxLength="50" Required="true"/>
+                    <MudTextField @bind-Value="Name" T="string" Label="Name" Variant="Variant.Outlined" MaxLength="50" Required Immediate/>
                 </MudItem>
                 <MudItem xs="8">
-                    <MudSelect @bind-Value="Type" T="string" Label="Panel Type" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                    <MudSelect @bind-Value="Type" T="string" Label="Panel Type" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter" Immediate>
                         <MudSelectItem Value="@("Monocrystalline")"/>
                         <MudSelectItem Value="@("Polycrystalline")"/>
                         <MudSelectItem Value="@("Thin-Film")"/>
                     </MudSelect>
                 </MudItem>
-                <MudItem xs="4">
-                    <MudSelect @bind-Value="Shape" T="string" Label="Panel Type" Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
-                        <MudSelectItem Value="@("Rectangular")"/>
-                        <MudSelectItem Value="@("Circular")"/>
-                    </MudSelect>
+                <MudItem xs="6">
+                    <MudNumericField @bind-Value="Width" Adornment="Adornment.End" AdornmentText="cm" Label="Width" Variant="Variant.Outlined" Min="1" Max="999" MaxLength="3" Immediate/>
                 </MudItem>
                 <MudItem xs="6">
-                    <MudNumericField @bind-Value="Width" Adornment="Adornment.End" AdornmentText="cm" Label="Width" Variant="Variant.Outlined" Min="1" MaxLength="3"/>
+                    <MudNumericField @bind-Value="Height" Adornment="Adornment.End" AdornmentText="cm" Label="Height" Variant="Variant.Outlined" Min="1" Max="999" MaxLength="3" Immediate/>
                 </MudItem>
                 <MudItem xs="6">
-                    <MudNumericField @bind-Value="Height" Adornment="Adornment.End" AdornmentText="cm" Label="Height" Variant="Variant.Outlined" Min="1" MaxLength="3"/>
+                    <MudNumericField @bind-Value="Output" Adornment="Adornment.End" AdornmentText="W" Label="Output" Variant="Variant.Outlined" Min="0" Max="999" MaxLength="3" Immediate/>
                 </MudItem>
                 <MudItem xs="6">
-                    <MudNumericField @bind-Value="Output" Adornment="Adornment.End" AdornmentText="W" Label="Output" Variant="Variant.Outlined" Min="0" MaxLength="4"/>
-                </MudItem>
-                <MudItem xs="6">
-                    <MudNumericField @bind-Value="Price" Format="N0" Culture="CultureInfo.CurrentCulture" Adornment="Adornment.Start" AdornmentColor="Color.Success" AdornmentIcon="@Icons.Material.Filled.AttachMoney" Label="Price" Variant="Variant.Outlined" Min="0" MaxLength="7"/>
+                    <MudNumericField @bind-Value="Price" Format="N0" Culture="CultureInfo.CurrentCulture" Adornment="Adornment.Start" AdornmentColor="Color.Success" AdornmentIcon="@Icons.Material.Filled.AttachMoney" Label="Price" Variant="Variant.Outlined" Min="0" Max="999999" MaxLength="6" Immediate/>
                 </MudItem>
             </MudGrid>
         </MudForm>    
@@ -54,7 +48,6 @@
 
     private string Name { get; set; }
     private string Type { get; set; } = "Monocrystalline";
-    private string Shape { get; set; } = "Rectangular";
     private int Width { get; set; } = 100;
     private int Height { get; set; } = 100;
     private int Output { get; set; } = 200;
@@ -72,7 +65,6 @@
             {
                 Name = Name,
                 Type = Type,
-                Shape = Shape,
                 Width = Width,
                 Height = Height,
                 Output = Output,

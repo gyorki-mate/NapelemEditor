@@ -7,7 +7,17 @@
 <PageTitle>Solar Panels</PageTitle>
 
 <h1>Solar Panels</h1>
-<MudTable T="Napelem" Items="_napelems">
+<MudTable T="Napelem" Items="_napelems"
+          CanCancelEdit="true"
+          Hover="true"
+          @bind-SelectedItem="selectedItem"
+          IsEditRowSwitchingBlocked="false"
+          CommitEditTooltip="Commit Edit"
+          CancelEditTooltip="Cancel Edit"
+          RowEditCommit="CommitEdit"
+          RowEditCancel="ResetItemToOriginalValues"
+          RowEditPreview="Backup">
+    
     <ToolBarContent>
         <MudButton OnClick="OpenNewSolarPanelDialog" Variant="Variant.Filled" Color="Color.Info">Add new Panel</MudButton>
     </ToolBarContent>
@@ -18,9 +28,6 @@
         </MudTh>
         <MudTh class="header">
             <MudTableSortLabel SortBy="new Func<Napelem, object>(x => x.Type)">Type</MudTableSortLabel>
-        </MudTh>
-        <MudTh class="header">
-            <MudTableSortLabel SortBy="new Func<Napelem, object>(x => x.Shape)">Shape</MudTableSortLabel>
         </MudTh>
         <MudTh class="header">
             <MudTableSortLabel SortBy="new Func<Napelem, object>(x => x.Width)">Width</MudTableSortLabel>
@@ -34,12 +41,13 @@
         <MudTh class="header">
             <MudTableSortLabel SortBy="new Func<Napelem, object>(x => x.Price)">Price</MudTableSortLabel>
         </MudTh>
+        <MudTh class="header">
+        </MudTh>
     </HeaderContent>
 
-    <RowTemplate >
+    <RowTemplate Context="context">
         <MudTd DataLabel="Name">@context.Name</MudTd>
         <MudTd DataLabel="Type">@context.Type</MudTd>
-        <MudTd DataLabel="Shape">@context.Shape</MudTd>
         <MudTd DataLabel="Width">@context.Width</MudTd>
         <MudTd DataLabel="Height">@context.Height</MudTd>
         <MudTd DataLabel="Output">@context.Output</MudTd>
@@ -50,6 +58,30 @@
             </MudTooltip>
         </MudTd>
     </RowTemplate>
+    <RowEditingTemplate Context="context">
+        <MudTd DataLabel="Name">
+            <MudTextField @bind-Value="selectedItem.Name" MaxLength="50" Required Immediate/>
+        </MudTd>
+        <MudTd DataLabel="Type">
+            <MudSelect @bind-Value="selectedItem.Type" Immediate>
+                <MudSelectItem Value="@("Monocrystalline")"/>
+                <MudSelectItem Value="@("Polycrystalline")"/>
+                <MudSelectItem Value="@("Thin-Film")"/>
+            </MudSelect>
+        </MudTd>
+        <MudTd DataLabel="Width">
+            <MudNumericField @bind-Value="selectedItem.Width" Min="1" Max="999" MaxLength="3" Immediate/>
+        </MudTd>
+        <MudTd DataLabel="Height">
+            <MudNumericField @bind-Value="selectedItem.Height" Min="1" Max="999" MaxLength="3" Immediate/>
+        </MudTd>
+        <MudTd DataLabel="Output">
+            <MudNumericField @bind-Value="selectedItem.Output" Min="1" Max="999" MaxLength="3" Immediate/>
+        </MudTd>
+        <MudTd DataLabel="Price">
+            <MudNumericField @bind-Value="selectedItem.Price" Min="1" Max="999999" MaxLength="6" Immediate/>
+        </MudTd>
+    </RowEditingTemplate>
 
     <PagerContent>
         <MudTablePager/>
@@ -60,6 +92,8 @@
 @code {
 
     List<Napelem> _napelems = new();
+    private Napelem backup = new();
+    private Napelem selectedItem;
     private string _searchString;
 
     protected override async Task OnInitializedAsync()
@@ -96,10 +130,63 @@
             NapelemController.DeleteNapelem(ID);
             _napelems = await NapelemController.GetAllNapelem();
             StateHasChanged();
+            Snackbar.Add("Panel deleted!", Severity.Success);
         }
         catch (Exception e)
         {
     // ignored
         }
+    }
+    
+    private async void CommitEdit(object napelem)
+    {
+        Console.WriteLine(((Napelem)napelem).Price);
+        try
+        {
+            DialogParameters parameters = new() { { "Content", "Are you sure you want to save?" } };
+            var result = DialogService.Show<ConfirmDialog>("Warning!", parameters);
+            var res = await result.Result;
+            Console.WriteLine(res.Cancelled);
+            if (res.Cancelled)
+            {
+                ResetItemToOriginalValues(napelem);
+                Snackbar.Add("Edit cancelled", Severity.Info);
+                Console.WriteLine("reset");
+            }
+            else
+            {
+                NapelemController.UpdateNapelem((Napelem)napelem);
+                Snackbar.Add("Successfully saved edit", Severity.Success);
+            }
+            _napelems = await NapelemController.GetAllNapelem();
+            StateHasChanged();
+        }
+        catch (Exception e)
+        {
+    //ignored
+        }
+    }
+
+    private void ResetItemToOriginalValues(object napelem)
+    {
+        ((Napelem)napelem).Name = backup.Name;
+        ((Napelem)napelem).Type = backup.Type;
+        ((Napelem)napelem).Width = backup.Width;
+        ((Napelem)napelem).Height = backup.Height;
+        ((Napelem)napelem).Output = backup.Output;
+        ((Napelem)napelem).Price = backup.Price;
+    }
+
+    private void Backup(object napelem)
+    {
+        backup = new Napelem
+        {
+            Name = ((Napelem)napelem).Name,
+            Type = ((Napelem)napelem).Type,
+            Width = ((Napelem)napelem).Width,
+            Height = ((Napelem)napelem).Height,
+            Output = ((Napelem)napelem).Output,
+            Price = ((Napelem)napelem).Price
+        };
     }
 }
