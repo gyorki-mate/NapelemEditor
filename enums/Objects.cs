@@ -16,6 +16,5 @@ public class Objects
     public double Y { get; set; }
     public int Width { get; set; }
     public int Height { get; set; }
-
     public bool isLocked { get; set; } = false;
 }

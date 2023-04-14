@@ -26,7 +26,7 @@
                                     @ondblclick=@(e => DeleteObject(this, e))>
                                     @foreach (var obstacle in item.Obstacles)
                                     {
-                                        <Draggable @bind-X="obstacle.X" @bind-Y="obstacle.Y" IsLocked="obstacle.isLocked">
+                                        <Draggable @bind-X="obstacle.X" @bind-Y="obstacle.Y" IsLocked="obstacle.isLocked" Height="obstacle.Height" Width="obstacle.Width">
                                             <Obstacle height="obstacle.Height" width="obstacle.Width"/>
                                         </Draggable>
                                     }
@@ -71,14 +71,11 @@
         public string Height { get; set; } = "500";
     }
 
-
     [Parameter]
     public RenderFragment RenderFragment { get; set; }
 
     private MudDynamicTabs DynamicTabs;
-    private int _index
-    
-    ;
+    private int _index;
     static double _x = 290;
     static double _y = 250;
     int _width = 40;
