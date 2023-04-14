@@ -7,7 +7,7 @@
 <PageTitle>Solar Panels</PageTitle>
 
 <h1>Solar Panels</h1>
-<MudTable T="Napelem" Items="_napelems"
+<MudTable T="Napelem" Items="napelems"
           CanCancelEdit="true"
           Hover="true"
           @bind-SelectedItem="selectedItem"
@@ -16,9 +16,14 @@
           CancelEditTooltip="Cancel Edit"
           RowEditCommit="CommitEdit"
           RowEditCancel="ResetItemToOriginalValues"
-          RowEditPreview="Backup">
+          RowEditPreview="Backup"
+          Filter="new Func<Napelem, bool>(FilterFunc1)">
     
     <ToolBarContent>
+        <MudItem xs="6">
+            <MudTextField @bind-Value="_searchString1" Immediate="true" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0" Style="justify-content: end" MaxLength="45" Clearable/>
+        </MudItem>
+        <MudSpacer/>        
         <MudButton OnClick="OpenNewSolarPanelDialog" Variant="Variant.Filled" Color="Color.Info">Add new Panel</MudButton>
     </ToolBarContent>
 
@@ -91,14 +96,14 @@
 
 @code {
 
-    List<Napelem> _napelems = new();
+    List<Napelem> napelems = new();
     private Napelem backup = new();
     private Napelem selectedItem;
-    private string _searchString;
+    private string _searchString1;
 
     protected override async Task OnInitializedAsync()
     {
-        _napelems = await NapelemController.GetAllNapelem();
+        napelems = await NapelemController.GetAllNapelem();
     }
 
     private async void OpenNewSolarPanelDialog()
@@ -110,7 +115,7 @@
             var res = await result.Result;
             Console.WriteLine(res);
             if (!res.Data.Equals(true)) return;
-            _napelems = await NapelemController.GetAllNapelem();
+            napelems = await NapelemController.GetAllNapelem();
             StateHasChanged();
         }
         catch (Exception e)
@@ -128,7 +133,7 @@
             var res = await result.Result;
             if (!res.Data.Equals(true)) return;
             NapelemController.DeleteNapelem(ID);
-            _napelems = await NapelemController.GetAllNapelem();
+            napelems = await NapelemController.GetAllNapelem();
             StateHasChanged();
             Snackbar.Add("Panel deleted!", Severity.Success);
         }
@@ -158,7 +163,7 @@
                 NapelemController.UpdateNapelem((Napelem)napelem);
                 Snackbar.Add("Successfully saved edit", Severity.Success);
             }
-            _napelems = await NapelemController.GetAllNapelem();
+            napelems = await NapelemController.GetAllNapelem();
             StateHasChanged();
         }
         catch (Exception e)
@@ -188,5 +193,12 @@
             Output = ((Napelem)napelem).Output,
             Price = ((Napelem)napelem).Price
         };
+    }
+    
+    private bool FilterFunc1(Napelem napelem) => FilterFunc(napelem, _searchString1);
+
+    private bool FilterFunc(Napelem napelem, string searchString)
+    {
+        return string.IsNullOrWhiteSpace(searchString) || napelem.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase);
     }
 }

@@ -17,6 +17,7 @@
                     <MudCheckBox T="bool" @bind-Checked="KeepMeLoggedIn">Remember me</MudCheckBox>
                 </MudItem>
                 <MudItem Class="align-self-end">
+                    <MudButton OnClick="@(() => MudDialog.Close())">Close</MudButton>
                     <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="Login" Disabled="@(!_success)">Ok</MudButton>
                 </MudItem>
             </MudGrid>
