@@ -1,0 +1,42 @@
+﻿<MudDialog>
+    <DialogContent>
+        <Mudtext>@Content</Mudtext>
+            <MudTextField @bind-Value="Name" Required="true" Label="Tab name"/>
+            <MudSelect T="string" @bind-Value="Orientation" Required="true" Label="Orientation">
+                <MudSelectItem Value="@("North")" />
+                <MudSelectItem Value="@("South")" />
+                <MudSelectItem Value="@("West")" />
+                <MudSelectItem Value="@("East")" />
+                <MudSelectItem Value="@("Northeast")" />
+                <MudSelectItem Value="@("Northwest")" />
+                <MudSelectItem Value="@("Southwest")" />
+                <MudSelectItem Value="@("Southeast")" />
+            </MudSelect>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => MudDialog.Cancel())">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    
+    [CascadingParameter]
+    MudDialogInstance MudDialog { get; set; }
+
+    //get tab name and orientation
+
+    [Parameter]
+    public string Content { get; set; } = "";
+
+    [Parameter]
+    public string Name { get; set; } = "";
+
+    [Parameter]
+    public string Orientation { get; set; } = "";
+
+    void Submit()
+    {
+        MudDialog.Close(DialogResult.Ok(new Tuple<string,string>(Name,Orientation)));
+    }
+}

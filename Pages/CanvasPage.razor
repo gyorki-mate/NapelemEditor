@@ -8,13 +8,13 @@
 @page "/canvas"
 <PageTitle>Canvas</PageTitle>
 
-<MudDynamicTabs @ref="DynamicTabs" @bind-ActivePanelIndex="_index" Border="true" Outlined="true" AddTab="AddTab" PanelClass="px-4 py-6">
+<MudDynamicTabs @ref="DynamicTabs" @bind-ActivePanelIndex="_index" Border="true" Outlined="true" AddTab="AddTab" AddIconToolTip="Click to add a new tab" CloseIconToolTip="Close tab" PanelClass="px-4 py-6">
     <ChildContent>
         <MudGrid>
             <MudItem>
                 @foreach (var item in _tabs)
                 {
-                    <MudTabPanel Text="@item.Orientation" Tag="@item.Id">
+                    <MudTabPanel Text="@item.Name" Tag="@item.Id">
 
                         <MudButton OnClick="@(AddObstacle)" hidden="@item.CanvasLocked" Variant="Variant.Outlined">Add Obstacle</MudButton>
                         <MudButton OnClick="@(LockCanvas)" Color="Color.Warning" hidden="@item.CanvasLocked" Variant="Variant.Outlined">Lock Canvas</MudButton>
@@ -63,6 +63,7 @@
     private class TabView
     {
         public string Orientation { get; set; }
+        public string Name { get; set; }
         public List<Objects> Obstacles = new();
         public List<Objects> Panels = new();
         public Guid Id { get; set; }
@@ -89,9 +90,28 @@
         _solarPanels = await NapelemController.GetAllNapelem();
     }
 
-    private void AddTab()
+    private async void AddTab()
     {
-        _tabs.Add(new TabView { Orientation = "", Id = Guid.NewGuid() });
+        var tabParameters = new DialogParameters
+        {
+            { "Content", "Add Tab" },
+            { "name", "" },
+            { "orientation", "" }
+        };
+
+        try
+        {
+            var result = await DialogService.ShowAsync<TabDialog>("Add Tab", tabParameters);
+            var dialogResult = await result.Result;
+            string _name = dialogResult.Data.As<Tuple<string, string>>().Item1;
+            string _orientation = dialogResult.Data.As<Tuple<string, string>>().Item2;
+            _tabs.Add(new TabView { Name = _name, Orientation = _orientation, Id = Guid.NewGuid() });
+        }
+        catch (Exception e)
+        {
+            //ignored
+        }
+        StateHasChanged();
     }
 
     private async void AddObstacle()
