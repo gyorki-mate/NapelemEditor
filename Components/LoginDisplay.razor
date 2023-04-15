@@ -9,7 +9,10 @@
     <MudGrid Justify="Justify.FlexEnd" Spacing="3">
 
         <MudItem Class="justify-end">
-            <MudLink Color="Color.Info" Typo="Typo.h6" Href="/profile">Current User: @_username</MudLink>
+            <MudLink Color="Color.Info" Underline="Underline.None" Typo="Typo.h6">Current User: @_username</MudLink>
+        </MudItem>
+        <MudItem Class="justify-end">
+            <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="EditProfile">Edit Profile</MudButton>
         </MudItem>
         <MudItem Class="justify-end">
             <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="SignOut">Logout</MudButton>
@@ -97,4 +100,8 @@ else
         }
     }
 
+    private void EditProfile()
+    {
+        DialogService.Show<EditProfileDialog>("Edit Profile");
+    }
 }
