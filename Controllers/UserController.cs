@@ -52,7 +52,7 @@ public class UserController : IUser
 
     }
 
-    public async void UpdateUser(Users user)
+    public async Task UpdateUser(Users user)
     {
         try
         {

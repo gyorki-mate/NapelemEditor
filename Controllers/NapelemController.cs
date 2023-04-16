@@ -36,7 +36,7 @@ public class NapelemController : INapelem
         }
     }
 
-    public async void UpdateNapelem(Napelem napelem)
+    public async Task UpdateNapelem(Napelem napelem)
     {
         try
         {

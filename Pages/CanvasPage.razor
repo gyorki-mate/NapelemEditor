@@ -15,7 +15,6 @@
                 @foreach (var item in _tabs)
                 {
                     <MudTabPanel Text="@item.Name" Tag="@item.Id">
-
                         <MudButton OnClick="@(AddObstacle)" hidden="@item.CanvasLocked" Variant="Variant.Outlined">Add Obstacle</MudButton>
                         <MudButton OnClick="@(LockCanvas)" Color="Color.Warning" hidden="@item.CanvasLocked" Variant="Variant.Outlined">Lock Canvas</MudButton>
                         <div class="row mt-2">
@@ -87,6 +86,7 @@
     protected override async Task OnInitializedAsync()
     {
         _solarPanels = await NapelemController.GetAllNapelem();
+        AddTabCallback();
     }
 
     private async void AddTab(Guid id)
@@ -145,8 +145,6 @@
             var dialogResult = await result.Result;
             _width = dialogResult.Data.As<Tuple<int, int>>().Item1;
             _height = dialogResult.Data.As<Tuple<int, int>>().Item2;
-    // _tabs.SingleOrDefault((x) => Equals(x.Id,))
-
             _tabs[_index].Obstacles.Add(new Objects(_x, _y, _width, _height));
         }
         catch (Exception e)

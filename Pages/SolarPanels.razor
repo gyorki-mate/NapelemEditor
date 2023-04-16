@@ -113,7 +113,6 @@
             var options = new DialogOptions { CloseOnEscapeKey = true };
             var result = await DialogService.ShowAsync<NewSolarPanelDialog>("New Solar Panel", options);
             var res = await result.Result;
-            Console.WriteLine(res);
             if (!res.Data.Equals(true)) return;
             napelems = await NapelemController.GetAllNapelem();
             StateHasChanged();
@@ -132,7 +131,9 @@
             var result = await DialogService.ShowAsync<ConfirmDialog>("Warning!", parameters);
             var res = await result.Result;
             if (!res.Data.Equals(true)) return;
+            
             NapelemController.DeleteNapelem(ID);
+            
             napelems = await NapelemController.GetAllNapelem();
             StateHasChanged();
             Snackbar.Add("Panel deleted!", Severity.Success);
@@ -149,18 +150,16 @@
         try
         {
             DialogParameters parameters = new() { { "Content", "Are you sure you want to save?" } };
-            var result = DialogService.Show<ConfirmDialog>("Warning!", parameters);
+            var result = await DialogService.ShowAsync<ConfirmDialog>("Warning!", parameters);
             var res = await result.Result;
-            Console.WriteLine(res.Cancelled);
             if (res.Cancelled)
             {
                 ResetItemToOriginalValues(napelem);
                 Snackbar.Add("Edit cancelled", Severity.Info);
-                Console.WriteLine("reset");
             }
             else
             {
-                NapelemController.UpdateNapelem((Napelem)napelem);
+                await NapelemController.UpdateNapelem((Napelem)napelem);
                 Snackbar.Add("Successfully saved edit", Severity.Success);
             }
             napelems = await NapelemController.GetAllNapelem();

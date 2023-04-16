@@ -94,7 +94,6 @@
     {
         if (await LocalStorage.ContainKeyAsync("isAuthenticated"))
         {
-            Console.WriteLine("authenticated");
             if (await LocalStorage.GetItemAsync<bool>("isAuthenticated") is false)
             {
                 Snackbar.Add("You have violated the law", Severity.Error);

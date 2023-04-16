@@ -1,8 +1,9 @@
-﻿@inject NavigationManager UriHelper;
+﻿@inject NavigationManager UriHelper
 @inject IDialogService DialogService
 @inject Blazored.SessionStorage.ISessionStorageService SessionStorage
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
-
+@inject ISnackbar Snackbar
+@inject NavigationManager Nav
 
 @if (IsAuthenticated)
 {
@@ -34,17 +35,20 @@ else
 
     [Parameter]
     public bool IsAuthenticated { get; set; }
-
     private string _username;
 
 
     protected override async void OnInitialized()
     {
-        if (await SessionStorage.ContainKeyAsync("isAuthenticated"))
+        if (LocalStorage != null && LocalStorage.GetItemAsync<string>("UserName").Equals(String.Empty)  )
         {
-            _username = await SessionStorage.GetItemAsync<string>("Username");
+            _username = await SessionStorage.GetItemAsync<string>("UserName");
         }
-        _username = await LocalStorage.GetItemAsync<string>("Username");
+        else
+        {
+            _username = await LocalStorage.GetItemAsync<string>("UserName");
+        }
+       
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -83,7 +87,7 @@ else
     {
         DialogParameters parameters = new() { { "Content", "Are you sure you want to logout? " } };
 
-        var result = DialogService.Show<ConfirmDialog>("Warning!", parameters);
+        var result = await DialogService.ShowAsync<ConfirmDialog>("Warning!", parameters);
         var res = await result.Result;
         try
         {
@@ -100,8 +104,13 @@ else
         }
     }
 
-    private void EditProfile()
+    private async void EditProfile()
     {
-        DialogService.Show<EditProfileDialog>("Edit Profile");
+        var res = await DialogService.ShowAsync<EditProfileDialog>("Edit Profile");
+        var result = await res.Result;
+        _username = await SessionStorage.GetItemAsync<string>("UserName");
+        Nav.NavigateTo(Nav.Uri, forceLoad: true);
+        if (result.Equals(true))
+            Snackbar.Add("Profile updated!", Severity.Success);
     }
 }

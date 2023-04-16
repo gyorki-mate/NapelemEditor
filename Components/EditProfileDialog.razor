@@ -11,10 +11,10 @@
     <DialogContent>
         <div class="d-flex flex-column py-1">
             <MudForm @bind-IsValid="@_success" @ref="form">
-                <MudTextField @bind-Value="_username" Required="true" Immediate="true" Label="Username" Variant="Variant.Outlined" MaxLength="45" HelperText="Enter your new username"/>
-                <MudTextField @bind-Value="_origPassword" Required="true" Immediate="true" Label="Current Password" Variant="Variant.Outlined" InputType="InputType.Password" MaxLength="45" HelperText="Enter your current password"/>
-                <MudTextField @bind-Value="_password" Required="true" Immediate="true" Label="Password" Variant="Variant.Outlined" MaxLength="45" @ref="pwField1" InputType="InputType.Password" HelperText="Enter your new password"/>
-                <MudTextField @bind-Value="_passwordAgain" Required="true" Immediate="true" Label="Password Again" Variant="Variant.Outlined" InputType="InputType.Password" MaxLength="45" Validation="@(new Func<string, string>(PasswordMatch))" HelperText="Repeat your new password"/>
+                <MudTextField @bind-Value="Username" Required="true" Immediate="true" Label="Username" Variant="Variant.Outlined" MaxLength="45" HelperText="Enter your new username" OnlyValidateIfDirty/>
+                <MudTextField @bind-Value="OrigPassword" Required="true" Immediate="true" Label="Current Password" Variant="Variant.Outlined" InputType="InputType.Password" MaxLength="45" HelperText="Enter your current password"/>
+                <MudTextField @bind-Value="Password" Required="true" Immediate="true" Label="Password" Variant="Variant.Outlined" MaxLength="45" @ref="pwField1" InputType="InputType.Password" HelperText="Enter your new password"/>
+                <MudTextField @bind-Value="PasswordAgain" Required="true" Immediate="true" Label="Password Again" Variant="Variant.Outlined" InputType="InputType.Password" MaxLength="45" Validation="@(new Func<string, string>(PasswordMatch))" HelperText="Repeat your new password"/>
             </MudForm>
         </div>
     </DialogContent>
@@ -25,59 +25,63 @@
 </MudDialog>
 
 @code {
-    
+
     [CascadingParameter]
     MudDialogInstance MudDialog { get; set; }
-    
+
     private bool _success;
-    private string _origUsername { get; set; } // original username
-    private string _username { get; set; }
-    private string _origPassword { get; set; } // original password
-    private string _password { get; set; }
-    private string _passwordAgain { get; set; }
-    
+    private string OrigUsername { get; set; } // original username
+    private string Username { get; set; }
+    private string OrigPassword { get; set; } // original password
+    private string Password { get; set; }
+    private string PasswordAgain { get; set; }
+
     MudTextField<string> pwField1;
-    
     MudForm form;
-    
+
+
     protected override async void OnInitialized()
     {
         if (await SessionStorage.ContainKeyAsync("isAuthenticated"))
         {
-            _origUsername = await SessionStorage.GetItemAsync<string>("Username");
+            OrigUsername = await SessionStorage.GetItemAsync<string>("UserName");
         }
-        _origUsername = await LocalStorage.GetItemAsync<string>("Username");
+        OrigUsername = await LocalStorage.GetItemAsync<string>("UserName");
     }
-    
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (await SessionStorage.ContainKeyAsync("isAuthenticated"))
+        if (firstRender)
         {
-            var tempUname = await SessionStorage.GetItemAsync<string>("UserName");
-            if (tempUname != _origUsername)
+            if (await SessionStorage.ContainKeyAsync("isAuthenticated"))
             {
-                _origUsername = tempUname;
-                StateHasChanged();
+                var tempUname = await SessionStorage.GetItemAsync<string>("UserName");
+                if (tempUname != OrigUsername)
+                {
+                    OrigUsername = tempUname;
+                    StateHasChanged();
+                }
             }
-        }
-        if (await LocalStorage.ContainKeyAsync("isAuthenticated"))
-        {
-            var tempUname = await LocalStorage.GetItemAsync<string>("UserName");
-            if (tempUname != _username)
+            if (await LocalStorage.ContainKeyAsync("isAuthenticated"))
             {
-                _origUsername = tempUname;
-                StateHasChanged();
+                var tempUname = await LocalStorage.GetItemAsync<string>("UserName");
+                if (tempUname != Username)
+                {
+                    OrigUsername = tempUname;
+                    StateHasChanged();
+                }
             }
+            Username = OrigUsername;
+            StateHasChanged();
         }
     }
-    
+
     public async void Change()
     {
-        
         Users? user;
         try
         {
-            user = await UserController.GetUser(_origUsername);
+            user = await UserController.GetUser(OrigUsername);
         }
         catch
         {
@@ -89,91 +93,72 @@
             Snackbar.Add("Invalid username or password", Severity.Error);
             return;
         }
-        var saltedPass = GenerateSHA256Hash(_origPassword, user.Salt);
+        var saltedPass = GenerateSHA256Hash(OrigPassword, user.Salt);
 
         if (!string.Equals(user.Password, saltedPass, StringComparison.CurrentCultureIgnoreCase))
         {
             Snackbar.Add("Invalid password");
             return;
         }
-        
-        
-        if (_password != _passwordAgain)
+
+
+        if (Password != PasswordAgain)
         {
             Snackbar.Add("Passwords do not match", Severity.Error);
             return;
         }
-        if(_username.Length < 4)
+        if (Username.Length < 4)
         {
             Snackbar.Add("Username must be at least 4 characters", Severity.Error);
             return;
         }
         try
         {
-            var checkUser =  await UserController.GetUser(_username);
-            if(checkUser != null && checkUser.UserName != _origUsername)
+            var checkUser = await UserController.GetUser(Username);
+            if (checkUser != null && checkUser.UserName != OrigUsername)
             {
                 Snackbar.Add("Username already exists", Severity.Error);
                 return;
             }
         }
-        catch(Exception e)
+        catch (Exception e)
         {
     //ignored
         }
-        
-        Console.WriteLine("W");
 
         try
         {
             DialogParameters parameters = new() { { "Content", "Are you sure you want to change your profile credentials? You will be logged out!" } };
-            var result = DialogService.Show<ConfirmDialog>("Warning!", parameters);
+            var result = await DialogService.ShowAsync<ConfirmDialog>("Warning!", parameters);
             var dialogResult = await result.Result;
-            Console.WriteLine(dialogResult.Canceled);
-            if (dialogResult.Canceled)
-            {
-                return;
-            }
-            
-            // db-ben meg nem updateli a usert, logikak mukodnek
-            UserController.UpdateUser(user);
-            
-            // mukodik de azert mert crasheli az appot
-            try
-            {
-                await SessionStorage.RemoveItemAsync("isAuthenticated");
+            if (dialogResult.Canceled) return;
 
-                await LocalStorage.RemoveItemAsync("isAuthenticated");
-
-                UriHelper.NavigateTo("/", forceLoad: true);
-                
-                Snackbar.Add("Account credentials have been saved", Severity.Success);
-            }
-            catch (Exception e)
+            var salt = CreateSalt();
+            Password = GenerateSHA256Hash(Password, salt);
+            var updatedUser = new Users
             {
-    //ignored
-            }
+                id = user.id,
+                UserName = Username,
+                Password = Password,
+                Salt = salt
+            };
+            await UserController.UpdateUser(updatedUser);
+            await SessionStorage.SetItemAsync("UserName", updatedUser.UserName);
+            var saved = await SessionStorage.GetItemAsStringAsync("UserName");
         }
         catch (Exception e)
         {
-            //ignored
+    //ignored
         }
-        var salt = CreateSalt();
-        _password = GenerateSHA256Hash(_password, salt);
-
-        
-        
+        MudDialog.Close(DialogResult.Ok(true));
     }
-    
+
     private string? PasswordMatch(string arg)
     {
         return pwField1.Value != arg ? "Passwords don't match" : null;
     }
-    
-    
-    /////
-    
-    private static string CreateSalt(int size=30)
+
+    private static string CreateSalt(int size = 30)
     {
         var rng = new System.Security.Cryptography.RNGCryptoServiceProvider();
         var buff = new byte[size];
@@ -188,7 +173,7 @@
             hex.Append($"{b:x2}");
         return hex.ToString();
     }
-    
+
     private string GenerateSHA256Hash(string input, string salt) //currently typed password, salt saved within user
     {
         var bytes = Encoding.UTF8.GetBytes(input + salt);
@@ -198,4 +183,5 @@
 
         return ByteArrayToHexString(hash);
     }
+
 }
