@@ -95,16 +95,20 @@
         {
             { "Content", "Add Tab" },
             { "name", "" },
-            { "orientation", "" }
+            { "orientation", "" },
+            { "width", "1200" },
+            { "height", "500" }
         };
 
         try
         {
             var result = await DialogService.ShowAsync<TabDialog>("Add Tab", tabParameters);
             var dialogResult = await result.Result;
-            var name = dialogResult.Data.As<Tuple<string, string>>().Item1;
-            var orientation = dialogResult.Data.As<Tuple<string, string>>().Item2;
-            _tabs.Add(new TabView { Name = name, Orientation = orientation, Id = Guid.NewGuid() });
+            var name = dialogResult.Data.As<Tuple<string, string, string, string>>().Item1;
+            var orientation = dialogResult.Data.As<Tuple<string, string, string, string>>().Item2;
+            var width = dialogResult.Data.As<Tuple<string, string, string, string>>().Item3;
+            var height = dialogResult.Data.As<Tuple<string, string, string, string>>().Item4;
+            _tabs.Add(new TabView { Name = name, Orientation = orientation, Width = width, Height = height, Id = Guid.NewGuid() });
         }
         catch (Exception e)
         {

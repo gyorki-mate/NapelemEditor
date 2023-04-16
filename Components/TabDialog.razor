@@ -1,21 +1,25 @@
 ﻿<MudDialog>
     <DialogContent>
-        <Mudtext>@Content</Mudtext>
+        <MudForm @bind-IsValid="_success">
+            <Mudtext>@Content</Mudtext>
             <MudTextField @bind-Value="Name" Required="true" Label="Tab name"/>
             <MudSelect T="string" @bind-Value="Orientation" Required="true" Label="Orientation">
-                <MudSelectItem Value="@("North")" />
-                <MudSelectItem Value="@("South")" />
-                <MudSelectItem Value="@("West")" />
-                <MudSelectItem Value="@("East")" />
-                <MudSelectItem Value="@("Northeast")" />
-                <MudSelectItem Value="@("Northwest")" />
-                <MudSelectItem Value="@("Southwest")" />
-                <MudSelectItem Value="@("Southeast")" />
+                <MudSelectItem Value="@("North")"/>
+                <MudSelectItem Value="@("South")"/>
+                <MudSelectItem Value="@("West")"/>
+                <MudSelectItem Value="@("East")"/>
+                <MudSelectItem Value="@("Northeast")"/>
+                <MudSelectItem Value="@("Northwest")"/>
+                <MudSelectItem Value="@("Southwest")"/>
+                <MudSelectItem Value="@("Southeast")"/>
             </MudSelect>
+            <MudNumericField T = "string" Label="Width" @bind-Value="@Width"></MudNumericField>
+            <MudNumericField T = "string" Label="Height" @bind-Value="@Height"></MudNumericField>
+        </MudForm>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="@(() => MudDialog.Cancel())">Cancel</MudButton>
-        <MudButton Color="Color.Primary" OnClick="Submit">Ok</MudButton>
+        <MudButton Color="Color.Primary" Disabled="@(!_success)" OnClick="Submit">Ok</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -24,6 +28,7 @@
     [CascadingParameter]
     MudDialogInstance MudDialog { get; set; }
 
+    private bool _success;
     //get tab name and orientation
 
     [Parameter]
@@ -34,9 +39,15 @@
 
     [Parameter]
     public string Orientation { get; set; } = "";
+    
+    [Parameter]
+    public string Width { get; set; } = "1200";
+    
+    [Parameter]
+    public string Height { get; set; } = "500";
 
     void Submit()
     {
-        MudDialog.Close(DialogResult.Ok(new Tuple<string,string>(Name,Orientation)));
+        MudDialog.Close(DialogResult.Ok(new Tuple<string,string,string,string>(Name,Orientation,Width,Height)));
     }
 }
