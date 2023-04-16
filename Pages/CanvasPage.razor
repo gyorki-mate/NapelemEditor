@@ -8,7 +8,7 @@
 @page "/canvas"
 <PageTitle>Canvas</PageTitle>
 
-<MudDynamicTabs @ref="DynamicTabs" @bind-ActivePanelIndex="_index" Border="true" Outlined="true" AddTab="AddTab" AddIconToolTip="Click to add a new tab" CloseIconToolTip="Close tab" PanelClass="px-4 py-6">
+<MudDynamicTabs @ref="DynamicTabs" @bind-ActivePanelIndex="_index" Border="true" Outlined="true" AddTab="AddTabCallback" PanelClass="px-4 py-6" CloseTab="CloseTabCallback" AddIconToolTip="Click to add a new tab" CloseIconToolTip="Close tab">
     <ChildContent>
         <MudGrid>
             <MudItem>
@@ -44,7 +44,7 @@
             </MudItem>
             <MudItem>
                 <MudButtonGroup VerticalAlign="true">
-                    @foreach (var solarPanel in _solarPanels)
+                    @foreach (var solarPanel in _solarPanels.Where(solarPanel => _tabs.Count > 0))
                     {
                         <MudButton OnClick="@(() => AddPanel(solarPanel.Width, solarPanel.Height))">
                             <MudIcon Icon="@Icons.Material.Filled.SolarPower"/>
@@ -86,11 +86,10 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _tabs.Add(new TabView { Orientation = "", Id = Guid.NewGuid() });
         _solarPanels = await NapelemController.GetAllNapelem();
     }
 
-    private async void AddTab()
+    private async void AddTab(Guid id)
     {
         var tabParameters = new DialogParameters
         {
@@ -103,16 +102,34 @@
         {
             var result = await DialogService.ShowAsync<TabDialog>("Add Tab", tabParameters);
             var dialogResult = await result.Result;
-            string _name = dialogResult.Data.As<Tuple<string, string>>().Item1;
-            string _orientation = dialogResult.Data.As<Tuple<string, string>>().Item2;
-            _tabs.Add(new TabView { Name = _name, Orientation = _orientation, Id = Guid.NewGuid() });
+            var name = dialogResult.Data.As<Tuple<string, string>>().Item1;
+            var orientation = dialogResult.Data.As<Tuple<string, string>>().Item2;
+            _tabs.Add(new TabView { Name = name, Orientation = orientation, Id = Guid.NewGuid() });
         }
         catch (Exception e)
         {
-            //ignored
+    //ignored
         }
         StateHasChanged();
+        _index = _tabs.Count - 1;
     }
+
+    private async void RemoveTab(Guid id)
+    {
+        var tabView = _tabs.SingleOrDefault((t) => Equals(t.Id, id));
+        if (tabView.Obstacles.Count > 0 || tabView.Panels.Count > 0)
+        {
+            DialogParameters parameters = new() { { "Content", "Wall is not empty! Are you sure you want to do that?" } };
+            var result = await DialogService.ShowAsync<ConfirmDialog>("Warning!", parameters);
+            var res = await result.Result;
+            if (res.Canceled) return;
+        }
+        _tabs.Remove(tabView);
+        StateHasChanged();
+    }
+
+    void AddTabCallback() => AddTab(Guid.NewGuid());
+    void CloseTabCallback(MudTabPanel panel) => RemoveTab((Guid)panel.Tag);
 
     private async void AddObstacle()
     {
@@ -128,11 +145,13 @@
             var dialogResult = await result.Result;
             _width = dialogResult.Data.As<Tuple<int, int>>().Item1;
             _height = dialogResult.Data.As<Tuple<int, int>>().Item2;
+    // _tabs.SingleOrDefault((x) => Equals(x.Id,))
+
             _tabs[_index].Obstacles.Add(new Objects(_x, _y, _width, _height));
         }
         catch (Exception e)
         {
-    //ignored
+    //ignored   
         }
         StateHasChanged();
     }
@@ -143,8 +162,8 @@
         {
             _tabs[_index].Obstacles.Remove(o);
             return;
-        }  
-        
+        }
+
         foreach (var p in _tabs[_index].Panels.Where(p => p.X + p.Width / 2 < e.OffsetX + p.Width / 2 && p.X + p.Width / 2 > e.OffsetX - p.Width / 2 && p.Y + p.Height / 2 < e.OffsetY + p.Height / 2 && p.Y + p.Height / 2 > e.OffsetY - p.Height / 2))
         {
             _tabs[_index].Panels.Remove(p);
