@@ -59,18 +59,6 @@
 
 @code {
 
-    private class TabView
-    {
-        public string Orientation { get; set; }
-        public string Name { get; set; }
-        public List<Objects> Obstacles = new();
-        public List<Objects> Panels = new();
-        public Guid Id { get; set; }
-        public bool CanvasLocked { get; set; }
-        public string Width { get; set; } = "1200";
-        public string Height { get; set; } = "500";
-    }
-
     [Parameter]
     public RenderFragment RenderFragment { get; set; }
 
@@ -91,24 +79,13 @@
 
     private async void AddTab(Guid id)
     {
-        var tabParameters = new DialogParameters
-        {
-            { "Content", "Add Tab" },
-            { "name", "" },
-            { "orientation", "" },
-            { "width", "1200" },
-            { "height", "500" }
-        };
-
         try
         {
-            var result = await DialogService.ShowAsync<TabDialog>("Add Tab", tabParameters);
-            var dialogResult = await result.Result;
-            var name = dialogResult.Data.As<Tuple<string, string, string, string>>().Item1;
-            var orientation = dialogResult.Data.As<Tuple<string, string, string, string>>().Item2;
-            var width = dialogResult.Data.As<Tuple<string, string, string, string>>().Item3;
-            var height = dialogResult.Data.As<Tuple<string, string, string, string>>().Item4;
-            _tabs.Add(new TabView { Name = name, Orientation = orientation, Width = width, Height = height, Id = Guid.NewGuid() });
+            var result = await DialogService.ShowAsync<TabDialog>("Add Tab");
+            var res = await result.Result;
+            if (res.Canceled) return;
+            var tab = res.Data.As<TabView>();
+            _tabs.Add(new TabView { Name = tab.Name , Orientation = tab.Orientation, Width = tab.Width, Height =tab.Height, Id = Guid.NewGuid() });
         }
         catch (Exception e)
         {

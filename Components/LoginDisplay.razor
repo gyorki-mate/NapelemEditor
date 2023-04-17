@@ -109,8 +109,8 @@ else
         var res = await DialogService.ShowAsync<EditProfileDialog>("Edit Profile");
         var result = await res.Result;
         _username = await SessionStorage.GetItemAsync<string>("UserName");
-        Nav.NavigateTo(Nav.Uri, forceLoad: true);
-        if (result.Equals(true))
+        StateHasChanged();
+        if (!result.Canceled)
             Snackbar.Add("Profile updated!", Severity.Success);
     }
 }
