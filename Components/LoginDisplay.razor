@@ -93,7 +93,6 @@ else
         {
             if (!res.Data.Equals(true)) return;
             await SessionStorage.RemoveItemAsync("isAuthenticated");
-
             await LocalStorage.RemoveItemAsync("isAuthenticated");
 
             UriHelper.NavigateTo("/", forceLoad: true);

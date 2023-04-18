@@ -8,6 +8,6 @@ public class TabView
     public List<Objects> Panels = new();
     public Guid Id { get; set; }
     public bool CanvasLocked { get; set; }
-    public string Width { get; set; } = "1200";
-    public string Height { get; set; } = "500";
+    public int Width { get; set; } = 10;
+    public int Height { get; set; } = 10;
 }
