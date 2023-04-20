@@ -6,31 +6,33 @@
 @page "/canvas"
 <PageTitle>Canvas</PageTitle>
 
-
 <MudDynamicTabs @ref="DynamicTabs" @bind-ActivePanelIndex="_index" Border="true" Outlined="true" AddTab="AddTabCallback" PanelClass="px-4 py-6" CloseTab="CloseTabCallback" AddIconToolTip="Click to add a new tab" CloseIconToolTip="Close tab">
     <ChildContent>
         @foreach (var tab in _tabs)
         {
-            <MudDropContainer T="DropItem" Items="_items" CanDropClass="mud-border-info" NoDropClass="mud-border-error" CanDrop="@((item, identifier) => _items.Count(x => x.Identifier == identifier) == 0)" ItemsSelector="@((item, dropzone) => item.Identifier == dropzone)" ItemDropped="ItemUpdated" Class="border-2 border-solid mud-border-lines-default">
-                <ChildContent>
-                    @for (var r = 0; r < tab.Height; r++)
-                    {
-                        var row = r.ToString();
-                        <div class="d-flex">
-                            @for (var c = 0; c < tab.Width; c++)
-                            {
-                                var col = c.ToString();
-                                <MudDropZone T="DropItem" Identifier="@($"{row}{col}")" DraggingClass="mud-theme-success" Class="d-flex justify-center align-center border-2 border-solid docs-gray-bg mud-border-lines-default" Style="height:64px;width:64px;"/>
-                            }
+            <MudTabPanel Text="@tab.Name" Tag="@tab.Id">
+                <MudDropContainer T="DropItem" Items="_items" CanDropClass="mud-border-info" NoDropClass="mud-border-error" CanDrop="@((item, identifier) => _items.Count(x => x.Identifier == identifier) == 0)" ItemsSelector="@((item, dropzone) => item.Identifier == dropzone)" ItemDropped="ItemUpdated" Class="border-2 border-solid mud-border-lines-default">
+                    <ChildContent>
+                        @* set gridpoint accuracy *@
+                        @for (var r = 0; r < tab.Height * 5; r++)
+                        {
+                            var row = r.ToString();
+                            <div class="d-flex">
+                                @for (var c = 0; c < tab.Width * 5; c++)
+                                {
+                                    var col = c.ToString();
+                                    <MudDropZone T="DropItem" Identifier="@($"{row}{col}")" DraggingClass="mud-theme-success" Class="d-flex justify-center align-center border-2 border-solid docs-gray-bg mud-border-lines-default" Style="height:32px;width:32px;"/>
+                                }
+                            </div>
+                        }
+                    </ChildContent>
+                    <ItemRenderer>
+                        <div class="d-flex justify-center align-center flex-grow-1">
+                            <MudIcon Icon="@context.Icon" Color="@context.Color" Size="Size.Large"/>
                         </div>
-                    }
-                </ChildContent>
-                <ItemRenderer>
-                    <div class="d-flex justify-center align-center flex-grow-1">
-                        <MudIcon Icon="@context.Icon" Color="@context.Color" Size="Size.Large"/>
-                    </div>
-                </ItemRenderer>
-            </MudDropContainer>
+                    </ItemRenderer>
+                </MudDropContainer>
+            </MudTabPanel>
         }
        
     </ChildContent>
