@@ -3,6 +3,10 @@
 @using MudBlazor.Extensions
 @using NapelemEditor.Models
 @inject ISnackbar Snackbar
+@using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Components.Rendering
+@inject IJSRuntime Js
+
 @page "/canvas"
 <PageTitle>Canvas</PageTitle>
 
@@ -10,38 +14,29 @@
     <ChildContent>
         @foreach (var tab in _tabs)
         {
+            
             <MudTabPanel Text="@tab.Name" Tag="@tab.Id">
-                <MudDropContainer T="DropItem" Items="_items" CanDropClass="mud-border-info" NoDropClass="mud-border-error" CanDrop="@((item, identifier) => _items.Count(x => x.Identifier == identifier) == 0)" ItemsSelector="@((item, dropzone) => item.Identifier == dropzone)" ItemDropped="ItemUpdated" Class="border-2 border-solid mud-border-lines-default">
-                    <ChildContent>
-                        @* set gridpoint accuracy *@
-                        @for (var r = 0; r < tab.Height * 5; r++)
-                        {
-                            var row = r.ToString();
-                            <div class="d-flex">
-                                @for (var c = 0; c < tab.Width * 5; c++)
-                                {
-                                    var col = c.ToString();
-                                    <MudDropZone T="DropItem" Identifier="@($"{row}{col}")" DraggingClass="mud-theme-success" Class="d-flex justify-center align-center border-2 border-solid docs-gray-bg mud-border-lines-default" Style="height:32px;width:32px;"/>
-                                }
-                            </div>
-                        }
-                    </ChildContent>
-                    <ItemRenderer>
-                        <div class="d-flex justify-center align-center flex-grow-1">
-                            <MudIcon Icon="@context.Icon" Color="@context.Color" Size="Size.Large"/>
-                        </div>
-                    </ItemRenderer>
-                </MudDropContainer>
+                <MudButton OnClick="addPanel">Add</MudButton>
+                <div class="main" @ref="canvasRef" style="height: 800px; width: 1200px">
+                     @foreach(var panel in tab.Panels)
+                                    {
+                                        <div class="draggable" style="width: @panel.Width; height: @panel.Height; position: absolute; top: @panel.Y; left: @panel.X">Draggable element rendered</div>
+                                    }
+                    <div class="draggable" style="width: 100px; height: 100px">Draggable element</div>
+                </div>
             </MudTabPanel>
         }
-       
+
     </ChildContent>
 </MudDynamicTabs>
 
-@code {
+
+@code
+{
     [Parameter]
     public RenderFragment RenderFragment { get; set; }
 
+    ElementReference canvasRef;
     private MudDynamicTabs DynamicTabs;
     private int _index;
     private List<TabView> _tabs = new();
@@ -49,61 +44,17 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _solarPanels = await NapelemController.GetAllNapelem();
-        _tabs.Add(new TabView());
-        // AddTabCallback();
+    // _solarPanels = await NapelemController.GetAllNapelem();
+    // _tabs.Add(new TabView());
+    // AddTabCallback();
     }
-    
-    private void ItemUpdated(MudItemDropInfo<DropItem> dropItem)
-    {
-        dropItem.Item.Identifier = dropItem.DropzoneIdentifier;
-    }
-    
 
-    private List<DropItem> _items = new()
-    {
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessRook, Color = Color.Primary, Identifier = "00" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessKnight, Color = Color.Primary, Identifier = "01" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessBishop, Color = Color.Primary, Identifier = "02" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessQueen, Color = Color.Primary, Identifier = "03" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessKing, Color = Color.Primary, Identifier = "04" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessBishop, Color = Color.Primary, Identifier = "05" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessKnight, Color = Color.Primary, Identifier = "06" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessRook, Color = Color.Primary, Identifier = "07" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessPawn, Color = Color.Primary, Identifier = "10" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessPawn, Color = Color.Primary, Identifier = "11" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessPawn, Color = Color.Primary, Identifier = "12" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessPawn, Color = Color.Primary, Identifier = "13" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessPawn, Color = Color.Primary, Identifier = "14" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessPawn, Color = Color.Primary, Identifier = "15" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessPawn, Color = Color.Primary, Identifier = "16" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessPawn, Color = Color.Primary, Identifier = "17" },
-        
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessPawn, Color = Color.Secondary, Identifier = "60" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessPawn, Color = Color.Secondary, Identifier = "61" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessPawn, Color = Color.Secondary, Identifier = "62" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessPawn, Color = Color.Secondary, Identifier = "63" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessPawn, Color = Color.Secondary, Identifier = "64" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessPawn, Color = Color.Secondary, Identifier = "65" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessPawn, Color = Color.Secondary, Identifier = "66" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessPawn, Color = Color.Secondary, Identifier = "67" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessRook, Color = Color.Secondary, Identifier = "70" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessKnight, Color = Color.Secondary, Identifier = "71" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessBishop, Color = Color.Secondary, Identifier = "72" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessQueen, Color = Color.Secondary, Identifier = "73" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessKing, Color = Color.Secondary, Identifier = "74" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessBishop, Color = Color.Secondary, Identifier = "75" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessKnight, Color = Color.Secondary, Identifier = "76" },
-        new DropItem(){ Icon = @Icons.Custom.Uncategorized.ChessRook, Color = Color.Secondary, Identifier = "77" },
-    };
 
-    public class DropItem
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        public string Icon { get; init; }
-        public Color Color { get; init; }
-        public string Identifier { get; set; }
+        await Js.InvokeVoidAsync("dragAndDrop", ".draggable");
     }
-    
+
     private async void AddTab(Guid id)
     {
         try
@@ -112,7 +63,7 @@
             var res = await result.Result;
             if (res.Canceled) return;
             var tab = res.Data.As<TabView>();
-            _tabs.Add(new TabView { Name = tab.Name , Orientation = tab.Orientation, Width = tab.Width, Height =tab.Height, Id = Guid.NewGuid() });
+            _tabs.Add(new TabView { Name = tab.Name, Orientation = tab.Orientation, Width = tab.Width, Height = tab.Height, Id = Guid.NewGuid() });
         }
         catch (Exception e)
         {
@@ -124,18 +75,46 @@
 
     private async void RemoveTab(Guid id)
     {
-        var tabView = _tabs.SingleOrDefault((t) => Equals(t.Id, id));
-        if (tabView.Obstacles.Count > 0 || tabView.Panels.Count > 0)
-        {
-            DialogParameters parameters = new() { { "Content", "Wall is not empty! Are you sure you want to do that?" } };
-            var result = await DialogService.ShowAsync<ConfirmDialog>("Warning!", parameters);
-            var res = await result.Result;
-            if (res.Canceled) return;
-        }
-        _tabs.Remove(tabView);
-        StateHasChanged();
+    // var tabView = _tabs.SingleOrDefault((t) => Equals(t.Id, id));
+    // if (tabView.Obstacles.Count > 0 || tabView.Panels.Count > 0)
+    // {
+    //     DialogParameters parameters = new() { { "Content", "Wall is not empty! Are you sure you want to do that?" } };
+    //     var result = await DialogService.ShowAsync<ConfirmDialog>("Warning!", parameters);
+    //     var res = await result.Result;
+    //     if (res.Canceled) return;
+    // }
+    // _tabs.Remove(tabView);
+    // StateHasChanged();
     }
 
     void AddTabCallback() => AddTab(Guid.NewGuid());
     void CloseTabCallback(MudTabPanel panel) => RemoveTab((Guid)panel.Tag);
+
+   //create builder to  render content in tab
+    //add crrated div to tab.content
+
+    private void addPanel()
+    {
+        var builder = new RenderTreeBuilder();
+
+        builder.OpenElement(0, "div");
+        builder.AddAttribute(1, "class", "main");
+        builder.AddAttribute(2, "ref", canvasRef);
+        builder.AddAttribute(3, "style", "height: 800px; width: 1200px");
+        builder.OpenElement(4, "div");
+        builder.AddAttribute(5, "class", "draggable");
+        builder.AddAttribute(6, "style", "width: 100px; height: 100px");
+        builder.AddContent(7, "Draggable element");
+        builder.CloseElement();
+        builder.CloseElement();
+        _tabs[_index].Panels.Add(new Objects(10,10,100,100));
+        DynamicTabs.ChildContent.Invoke(builder);
+        
+        StateHasChanged();
+        ShouldRender();
+        Console.WriteLine(builder.GetFrames().Count);
+        Console.WriteLine();
+    }
+    //save tab content to TabView
+    
 }
