@@ -155,24 +155,4 @@
         MouseSrv.OnLeave -= OnLeave;
     }
 
-    //TODO might needed later
-    bool CheckCollision(double newX, double newY, double otherX, double otherY, int otherWidth, int otherHeight)
-    {
-        double thisLeft = newX;
-        double thisRight = newX + Width;
-        double thisTop = newY;
-        double thisBottom = newY + Height;
-
-        double otherLeft = otherX;
-        double otherRight = otherX + otherWidth;
-        double otherTop = otherY;
-        double otherBottom = otherY + otherHeight;
-
-    // Check for collision by comparing the bounding boxes of the two objects
-        return !(thisLeft > otherRight
-                 || thisRight < otherLeft
-                 || thisTop > otherBottom
-                 || thisBottom < otherTop);
-    }
-
 }

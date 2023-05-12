@@ -1,8 +1,8 @@
 ﻿<MudDialog>
     <DialogContent>
         <Mudtext>@Content</Mudtext>
-        <MudNumericField T = "int" Label="Width" @bind-Value="@Width"></MudNumericField>
-        <MudNumericField T = "int" Label="Height" @bind-Value="@Height"></MudNumericField>
+        <MudNumericField T = "int" Label="Width"  @bind-Value="@Width" Max="1000" Min="0" MaxLength="4"></MudNumericField>
+        <MudNumericField T = "int" Label="Height" @bind-Value="@Height" Max="1000" Min="0" MaxLength="4"></MudNumericField>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="@(() => MudDialog.Cancel())">Cancel</MudButton>
@@ -15,15 +15,11 @@
     [CascadingParameter]
     MudDialogInstance MudDialog { get; set; }
 
-    //save the width and height parameters
-
     [Parameter]
     public string Content { get; set; } = "";
-
-    [Parameter]
+    
     public int Height { get; set; } = 100;
-
-    [Parameter]
+    
     public int Width { get; set; } = 100;
 
     void Submit()

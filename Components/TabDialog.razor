@@ -28,7 +28,7 @@
     [CascadingParameter]
     MudDialogInstance MudDialog { get; set; }
     
-    private TabView _tabView = new ();
+    private readonly TabView _tabView = new ();
     private bool _success;
 
     void Submit()

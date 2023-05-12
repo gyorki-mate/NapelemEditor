@@ -3,7 +3,6 @@
 @using MudBlazor.Extensions
 @using NapelemEditor.Models
 @inject ISnackbar Snackbar
-@inject IJSRuntime Js
 @inject MouseService MouseSrv;
 
 @page "/canvas"
@@ -29,8 +28,6 @@
                                         <Draggable @bind-X="obstacle.X" Height="obstacle.Height" Width="obstacle.Width" @bind-Y="obstacle.Y" IsLocked="obstacle.isLocked">
                                             <Obstacle Width="@obstacle.Width" Height="@obstacle.Height"/>
                                         </Draggable>
-
-                                        @* <div itemid="" class="draggable" style="width: @panel.Width; height: @panel.Height; position: absolute; top: @panel.Y; left: @panel.X">Draggable element rendered</div> *@
                                     }
                                     @foreach (var panel in tab.Panels)
                                     {
@@ -38,7 +35,6 @@
                                             <Obstacle Width="@panel.Width" Height="@panel.Height" color="blue"/>
                                         </Draggable>
                                     }
-                                    @* <div class="draggable" style="width: 100px; height: 100px">Draggable element</div> *@
                                 </svg>
                             </div>
                         </div>
@@ -49,7 +45,7 @@
                 <MudButtonGroup VerticalAlign="true">
                     @foreach (var solarPanel in _solarPanels.Where(solarPanel => _tabs.Count > 0))
                     {
-                        <MudButton OnClick="@(() => AddPanel(solarPanel.Width, solarPanel.Height))">
+                        <MudButton OnClick="@(() => AddPanel(solarPanel.Width, solarPanel.Height, solarPanel.Price, solarPanel.Output))">
                             <MudIcon Icon="@Icons.Material.Filled.SolarPower"/>
                             @(solarPanel.Name + " - " + solarPanel.Width + "x" + solarPanel.Height)
                         </MudButton>
@@ -57,7 +53,25 @@
                 </MudButtonGroup>
             </MudItem>
             <MudItem>
+                <MudSimpleTable Style="overflow-x: auto;">
+                    <thead>
+                    <tr>
+                        @foreach (var h in headings)
+                        {
+                            <th>@h</th>
+                        }
+                    </tr>
+                    </thead>
+                    <tbody>
 
+                    <tr>
+                        <td>@_totalOutput W</td>
+                        <td>@_totalPrice €</td>
+
+                    </tr>
+
+                    </tbody>
+                </MudSimpleTable>
             </MudItem>
         </MudGrid>
     </ChildContent>
@@ -72,14 +86,30 @@
 
     ElementReference canvasRef;
     private MudDynamicTabs DynamicTabs;
-    private int _index;
-    private List<TabView> _tabs = new();
+    private int _index = 0;
+    private readonly List<TabView> _tabs = new();
     private List<Napelem> _solarPanels = new();
+    string[] headings = { "Total Output", "Total Price" };
+    int _totalOutput = 0;
+    int _totalPrice = 0;
+
 
     protected override async Task OnInitializedAsync()
     {
         _solarPanels = await NapelemController.GetAllNapelem();
         AddTabCallback();
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (_tabs.Count <= 0) return;
+        _totalPrice = 0;
+        _totalOutput = 0;
+        foreach (var p in _tabs[_index].Panels)
+        {
+            _totalOutput += p.Output;
+            _totalPrice += p.Price;
+        }
     }
 
     private async void AddTab(Guid id)
@@ -96,8 +126,8 @@
         {
     //ignored
         }
+
         StateHasChanged();
-        _index = _tabs.Count - 1;
     }
 
     private async void RemoveTab(Guid id)
@@ -118,20 +148,35 @@
     void CloseTabCallback(MudTabPanel panel) => RemoveTab((Guid)panel.Tag);
 
 
-    private void AddObstacle()
+    private async void AddObstacle()
     {
-        _tabs[_index].Obstacles.Add(new Objects(200, 10, 100, 100));
+        var parameters = new DialogParameters
+        {
+            { "Content", "Add Obstacle" }
+        };
+        try
+        {
+            var result = await DialogService.ShowAsync<ObstacleDialog>("Add Obstacle", parameters);
+            var dialogResult = await result.Result;
+            var width = dialogResult.Data.As<Tuple<int, int>>().Item1;
+            var height = dialogResult.Data.As<Tuple<int, int>>().Item2;
+            _tabs[_index].Obstacles.Add(new Objects(150, 150, width, height));
+        }
+        catch (Exception e)
+        {
+    //ignored   
+        }
         StateHasChanged();
     }
 
-    private void AddPanel(int width, int height)
+    private void AddPanel(int width, int height, int price, int output)
     {
         if (!_tabs[_index].CanvasLocked)
         {
             Snackbar.Add("Wall customization still in progress!", Severity.Error);
             return;
         }
-        _tabs[_index].Panels.Add(new Objects(150, 150, width, height));
+        _tabs[_index].Panels.Add(new Objects(150, 150, width, height, price, output));
     }
 
     private void LockCanvas()
@@ -168,8 +213,6 @@
 
     private void OnLeave(object? obj, MouseEventArgs e)
     {
-        Console.WriteLine("mouse released");
-
         if (_tabs[_index].Obstacles.Any(o => _tabs[_index].Obstacles.Any(o2 => o.X < o2.X + o2.Width && o.X + o.Width > o2.X && o.Y < o2.Y + o2.Height && o.Y + o.Height > o2.Y && o != o2)))
         {
             Console.WriteLine("collision o with o");
@@ -192,20 +235,23 @@
             MouseSrv.Reset(obj, e);
             return;
         }
+
+
+        if (_tabs[_index].Obstacles.Any(o => o.X < 0 || o.X + o.Width + 10 > int.Parse(_tabs[_index].Width) || o.Y < 0 || o.Y + o.Height + 10 > int.Parse(_tabs[_index].Height)))
+        {
+            Console.WriteLine("collision with wall");
+            MouseSrv.Reset(obj, e);
+            return;
+        }
+
+        if (_tabs[_index].Panels.Any(o => o.X < 0 || o.X + o.Width + 10 > int.Parse(_tabs[_index].Width) || o.Y < 0 || o.Y + o.Height + 10 > int.Parse(_tabs[_index].Height)))
+        {
+            Console.WriteLine("collision with wall");
+            MouseSrv.Reset(obj, e);
+            return;
+        }
+
         Console.WriteLine("no collision");
-
         MouseSrv.FireLeave(obj, e);
-
-
-    //check collision with the wall
-    // if (o.X < 0 || o.X + o.Width + 10 > int.Parse(_tabs[_index].Width) || o.Y < 0 || o.Y + o.Height + 10 > int.Parse(_tabs[_index].Height))
-    // {
-    //     o.X = o.X;
-    //     o.Y = o.Y;
-    //     return;
-    // }
-    //
-    // o.X = e.OffsetX;
-    // o.Y = e.OffsetY;
     }
 }
