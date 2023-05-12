@@ -17,7 +17,7 @@ public class MouseService : IMouseService {
     
 
     public void FireMove(object obj, MouseEventArgs evt) => OnMove?.Invoke(obj, evt);
-    public void FireUp(object obj, MouseEventArgs evt) => OnUp?.Invoke(obj, evt);
+    public void Reset(object obj, MouseEventArgs evt) => OnUp?.Invoke(obj, evt);
     public void FireLeave(object obj, MouseEventArgs evt) => OnLeave?.Invoke(obj, evt);
  
     

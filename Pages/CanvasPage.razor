@@ -21,12 +21,12 @@
                         <div class="row mt-2">
                             <div class="col">
                                 <svg class="bg-light" width="@tab.Width" height="@tab.Height" xmlns="http://www.w3.org/2000/svg"
-                                     @onmousemove=@(e => onMove(this, e))
-                                                    @onmouseup=@(e => MouseSrv.FireUp(this, e))
+                                     @onmousemove=@(e => OnMove(this, e))
+                                                    @onmouseup=@(e => OnLeave(this, e))
                                                     @ondblclick=@(e => DeleteObject(this, e))>
                                     @foreach (var obstacle in tab.Obstacles)
                                     {
-                                        <Draggable @bind-X="obstacle.X" Height="obstacle.Height" Width="obstacle.Width" @bind-Y="obstacle.Y">
+                                        <Draggable @bind-X="obstacle.X" Height="obstacle.Height" Width="obstacle.Width" @bind-Y="obstacle.Y" IsLocked="obstacle.isLocked">
                                             <Obstacle Width="@obstacle.Width" Height="@obstacle.Height"/>
                                         </Draggable>
 
@@ -34,7 +34,7 @@
                                     }
                                     @foreach (var panel in tab.Panels)
                                     {
-                                        <Draggable @bind-X="panel.X" Height="panel.Height" Width="panel.Width" @bind-Y="panel.Y">
+                                        <Draggable @bind-X="panel.X" Height="panel.Height" Width="panel.Width" @bind-Y="panel.Y" IsLocked="panel.isLocked">
                                             <Obstacle Width="@panel.Width" Height="@panel.Height" color="blue"/>
                                         </Draggable>
                                     }
@@ -159,59 +159,53 @@
         }
     }
 
-    private void onMove(object? obj, MouseEventArgs e)
+    private void OnMove(object? obj, MouseEventArgs e)
     {
-    foreach (var o in _tabs[_index].Obstacles)
-    {
-        Console.WriteLine(o.isLocked);
-    }
-    
-    
-    // // Console.WriteLine(e.OffsetX + " " + e.OffsetY);
-    //     // foreach (var O in _tabs[_index].Obstacles)
-    //     // {
-    //     //     Console.WriteLine("obstacle pos: " + O.X + " " + O.Y);
-    //     // }
-    //     // if (_tabs[_index].Obstacles.Count > 0)
-    //     // {
-    //     //     Console.WriteLine("object pos: " + _tabs[_index].Obstacles[0].X + " " + _tabs[_index].Obstacles[0].Y);
-    //     // }
-    //     
-    // //set X and Y coordinates of the object
-    //
-    //     
-    // //check collision with obstacles and panels and if there is no collision move the object x and y coordinates are the left top corner of the object
-    //    
-    //
-    // //if there is no collision with obstacles and panels check collision with the wall and if there is no collision move the object
-    //     if (_tabs[_index].Obstacles.Any(o => o.X < 0 || o.X + o.Width+10 > int.Parse(_tabs[_index].Width) || o.Y < 0 || o.Y + o.Height+10 > int.Parse( _tabs[_index].Height)))
-    //     {
-    //         Console.WriteLine("collision with wall");
-    //         return;
-    //     }
-    //
-    //     if (_tabs[_index].Panels.Any(p => p.X < 0 || p.X + p.Width+10 > int.Parse(_tabs[_index].Width) || p.Y < 0 || p.Y + p.Height+10 > int.Parse( _tabs[_index].Height)))
-    //     {
-    //         Console.WriteLine("collision with wall+1");
-    //         return;
-    //     }
-    //
-    // //if there is no collision with the wall move the object
-    //     if (_tabs[_index].Obstacles.Any(o => o.X + o.Width / 2 < e.OffsetX + o.Width / 2 && o.X + o.Width / 2 > e.OffsetX - o.Width / 2 && o.Y + o.Height / 2 < e.OffsetY + o.Height / 2 && o.Y + o.Height / 2 > e.OffsetY - o
-    //         .Height / 2))
-    //     {
-    //         Console.WriteLine("collision with obstacle");
-    //         return;
-    //     }
-    //     if (_tabs[_index].Panels.Any(p => p.X + p.Width / 2 < e.OffsetX + p.Width / 2 && p.X + p.Width / 2 > e.OffsetX - p.Width / 2 && p.Y + p.Height / 2 < e.OffsetY + p.Height / 2 && p.Y + p.Height / 2 > e.OffsetY - p.Height / 2))
-    //     {
-    //         Console.WriteLine("collision with panel");
-    //         return;
-    //     }
-
+        StateHasChanged();
         MouseSrv.FireMove(obj, e);
+        StateHasChanged();
+    }
+
+    private void OnLeave(object? obj, MouseEventArgs e)
+    {
+        Console.WriteLine("mouse released");
+
+        if (_tabs[_index].Obstacles.Any(o => _tabs[_index].Obstacles.Any(o2 => o.X < o2.X + o2.Width && o.X + o.Width > o2.X && o.Y < o2.Y + o2.Height && o.Y + o.Height > o2.Y && o != o2)))
+        {
+            Console.WriteLine("collision o with o");
+            MouseSrv.Reset(obj, e);
+            return;
+        }
 
 
-    //save tab content to TabView
+        if (_tabs[_index].Panels.Any(p => _tabs[_index].Panels.Any(p2 => p.X < p2.X + p2.Width && p.X + p.Width > p2.X && p.Y < p2.Y + p2.Height && p.Y + p.Height > p2.Y && p != p2)))
+        {
+            Console.WriteLine("collision with panel");
+            MouseSrv.Reset(obj, e);
+            return;
+        }
+
+
+        if (_tabs[_index].Panels.Any(p => _tabs[_index].Obstacles.Any(o2 => p.X < o2.X + o2.Width && p.X + p.Width > o2.X && p.Y < o2.Y + o2.Height && p.Y + p.Height > o2.Y)))
+        {
+            Console.WriteLine("collision with obstacle");
+            MouseSrv.Reset(obj, e);
+            return;
+        }
+        Console.WriteLine("no collision");
+
+        MouseSrv.FireLeave(obj, e);
+
+
+    //check collision with the wall
+    // if (o.X < 0 || o.X + o.Width + 10 > int.Parse(_tabs[_index].Width) || o.Y < 0 || o.Y + o.Height + 10 > int.Parse(_tabs[_index].Height))
+    // {
+    //     o.X = o.X;
+    //     o.Y = o.Y;
+    //     return;
+    // }
+    //
+    // o.X = e.OffsetX;
+    // o.Y = e.OffsetY;
     }
 }

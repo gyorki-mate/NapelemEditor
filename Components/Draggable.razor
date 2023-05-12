@@ -56,11 +56,14 @@
     [Parameter]
     public bool IsLocked { get; set; }
 
+    public double? lastX { get; set; }
+    public double? lastY { get; set; }
+
     protected override void OnInitialized()
     {
         MouseSrv.OnMove += OnMove;
-        MouseSrv.OnUp += OnUpLeave;
-        MouseSrv.OnLeave += OnUpLeave;
+        MouseSrv.OnUp += Reset;
+        MouseSrv.OnLeave += OnLeave;
         base.OnInitialized();
     }
 
@@ -97,10 +100,23 @@
         IsDown = true;
         _cursorX = e.ClientX;
         _cursorY = e.ClientY;
+        lastX = _x;
+        lastY = _y;
     }
 
-    void OnUpLeave(object? _, MouseEventArgs e)
+    void Reset(object? _, MouseEventArgs e)
     {
+        IsDown = false;
+
+        if (!lastX.HasValue || !lastY.HasValue) return;
+        XChanged.InvokeAsync(lastX.Value);
+        YChanged.InvokeAsync(lastY.Value);
+    }
+
+    void OnLeave(object? _, MouseEventArgs e)
+    {
+        lastX = _x;
+        lastY = _y;
         IsDown = false;
     }
 
@@ -109,12 +125,13 @@
     {
         if (!IsDown || IsLocked)
             return;
-        
-        
+
+      
         _x -= _cursorX - e.ClientX;
         _y -= _cursorY - e.ClientY;
+        
 
-        //snap to grid
+    //snap to grid
         if (_x % 10 != 0)
         {
             _x = Math.Round((double)(_x / 10)) * 10;
@@ -123,9 +140,6 @@
         {
             _y = Math.Round((double)(_y / 10)) * 10;
         }
-        
-        //check collision with other elements and edges of parent
-        //TODO
 
         _cursorX = e.ClientX;
         _cursorY = e.ClientY;
@@ -137,8 +151,8 @@
     void Dispose()
     {
         MouseSrv.OnMove -= OnMove;
-        MouseSrv.OnUp -= OnUpLeave;
-        MouseSrv.OnLeave -= OnUpLeave;
+        MouseSrv.OnUp -= Reset;
+        MouseSrv.OnLeave -= OnLeave;
     }
 
     //TODO might needed later
@@ -155,9 +169,10 @@
         double otherBottom = otherY + otherHeight;
 
     // Check for collision by comparing the bounding boxes of the two objects
-    return !(thisLeft > otherRight
-        || thisRight < otherLeft
-        || thisTop > otherBottom
-        || thisBottom < otherTop);
+        return !(thisLeft > otherRight
+                 || thisRight < otherLeft
+                 || thisTop > otherBottom
+                 || thisBottom < otherTop);
     }
+
 }
