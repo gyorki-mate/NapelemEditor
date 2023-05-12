@@ -1,8 +1,4 @@
-﻿var snapObjects = [];
-snapObjects = document.getElementsByClassName("grid-item");
-
-function dragAndDrop(className) {
-    const position = {x: 0, y: 0}
+﻿function dragAndDrop(className) {
 
     interact(className).draggable({
         listeners: {
@@ -10,11 +6,18 @@ function dragAndDrop(className) {
                 console.log(event.type, event.target)
             },
             move(event) {
-                position.x += event.dx
-                position.y += event.dy
-
+                var target = event.target,
+                    // keep the dragged position in the data-x/data-y attributes
+                    x = (parseFloat(target.getAttribute('X')) || 0) + event.dx,
+                    y = (parseFloat(target.getAttribute('Y')) || 0) + event.dy;
+                
                 event.target.style.transform =
-                    `translate(${position.x}px, ${position.y}px)`
+                    `translate(${x}px, ${y}px)`;
+                
+                // update the posiion attributes
+                target.setAttribute('X', x);
+                target.setAttribute('Y', y);
+                
             },
         }, modifiers: [
             interact.modifiers.restrictRect({
@@ -51,3 +54,8 @@ var gridTarget = interact.snappers.grid({
         height: 500
     }
 })
+
+function setDimesions(x,y){
+    document.querySelector('.draggable').setAttribute('X',x);
+    document.querySelector('.draggable').setAttribute('X',y);
+}

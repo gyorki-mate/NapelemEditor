@@ -6,7 +6,7 @@ public class TabView
 {
     public string Orientation { get; set; }
     public string Name { get; set; }
-    // public List<Objects> Obstacles = new();
+    public List<Objects> Obstacles = new();
     public List<Objects> Panels = new();
     public Guid Id { get; set; }
     public bool CanvasLocked { get; set; }

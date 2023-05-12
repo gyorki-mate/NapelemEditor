@@ -66,10 +66,9 @@
 
     protected override void OnAfterRender(bool firstRender)
     {
-        if (IsLocked)
-        {
-            _cursor = "default";
-        }
+        if (!IsLocked) return;
+        _cursor = "default";
+        Dispose();
     }
 
     string _cursor = "grab";
@@ -108,11 +107,25 @@
 
     void OnMove(object? _, MouseEventArgs e)
     {
-        if (!IsDown)
+        if (!IsDown || IsLocked)
             return;
-
+        
+        
         _x -= _cursorX - e.ClientX;
         _y -= _cursorY - e.ClientY;
+
+        //snap to grid
+        if (_x % 10 != 0)
+        {
+            _x = Math.Round((double)(_x / 10)) * 10;
+        }
+        if (_y % 10 != 0)
+        {
+            _y = Math.Round((double)(_y / 10)) * 10;
+        }
+        
+        //check collision with other elements and edges of parent
+        //TODO
 
         _cursorX = e.ClientX;
         _cursorY = e.ClientY;
@@ -128,6 +141,7 @@
         MouseSrv.OnLeave -= OnUpLeave;
     }
 
+    //TODO might needed later
     bool CheckCollision(double newX, double newY, double otherX, double otherY, int otherWidth, int otherHeight)
     {
         double thisLeft = newX;
@@ -141,9 +155,9 @@
         double otherBottom = otherY + otherHeight;
 
     // Check for collision by comparing the bounding boxes of the two objects
-        return thisLeft < otherRight &&
-               thisRight > otherLeft &&
-               thisTop < otherBottom &&
-               thisBottom > otherTop;
+    return !(thisLeft > otherRight
+        || thisRight < otherLeft
+        || thisTop > otherBottom
+        || thisBottom < otherTop);
     }
 }
