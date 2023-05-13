@@ -56,20 +56,15 @@
                 <MudSimpleTable Style="overflow-x: auto;">
                     <thead>
                     <tr>
-                        @foreach (var h in headings)
-                        {
-                            <th>@h</th>
-                        }
+                        <th>Total Output</th>
+                        <th>Total Price</th>
                     </tr>
                     </thead>
                     <tbody>
-
                     <tr>
                         <td>@_totalOutput W</td>
                         <td>@_totalPrice €</td>
-
                     </tr>
-
                     </tbody>
                 </MudSimpleTable>
             </MudItem>
@@ -80,20 +75,15 @@
 
 @code
 {
-
-    [Parameter]
-    public RenderFragment RenderFragment { get; set; }
-
+    
     ElementReference canvasRef;
     private MudDynamicTabs DynamicTabs;
-    private int _index = 0;
+    private int _index;
     private readonly List<TabView> _tabs = new();
     private List<Napelem> _solarPanels = new();
-    string[] headings = { "Total Output", "Total Price" };
-    int _totalOutput = 0;
-    int _totalPrice = 0;
-
-
+    int _totalOutput;
+    int _totalPrice;
+    
     protected override async Task OnInitializedAsync()
     {
         _solarPanels = await NapelemController.GetAllNapelem();
@@ -110,6 +100,8 @@
             _totalOutput += p.Output;
             _totalPrice += p.Price;
         }
+        //TODO use Orientation of the wall to calculate output
+        
     }
 
     private async void AddTab(Guid id)
