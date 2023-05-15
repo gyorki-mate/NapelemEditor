@@ -198,9 +198,7 @@
 
     private void OnMove(object? obj, MouseEventArgs e)
     {
-        StateHasChanged();
         MouseSrv.FireMove(obj, e);
-        StateHasChanged();
     }
 
     private void OnLeave(object? obj, MouseEventArgs e)
